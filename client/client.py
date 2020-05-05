@@ -3,6 +3,7 @@ from base64 import b64decode
 from PIL import Image
 import io
 import numpy as np
+import time
 
 sio = socketio.Client()
 
@@ -13,8 +14,10 @@ def connect():
 @sio.on("stream")
 def my_message(data):
     print('message received')
+    t = time.process_time()
     img = webp_to_img(data)
-    print(img.shape)
+    elapsed_time = time.process_time() - t
+    print(elapsed_time)
 
 @sio.event
 def disconnect():
