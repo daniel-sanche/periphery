@@ -35,7 +35,7 @@
       if(navigator.getUserMedia) {
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
-            setInterval(sendVideo,5000);
+            setInterval(sendVideo,3000);
         });
       }
     });
@@ -56,8 +56,8 @@
           ctx.rect(obj.x, obj.y, obj.width, obj.height);
           // ctx.rect(1, 1, 100, 100);
           ctx.stroke();
-          ctx.font = "10px Arial";
-          ctx.strokeText(obj.item, 50, 20);
+          ctx.font = "20px Arial";
+          ctx.strokeText(obj.item + " - " + obj.confidence.toFixed(2), obj.x, obj.y);
       }
     }
 
