@@ -5,25 +5,28 @@
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-  <video src="" id="video" style="width:680px;height:320px;" autoplay="true"></video>
-  <canvas style="display:none;" id="preview"></canvas>
+  <div class="container">
+    <video src="" id="video" style="width:640px;height:480px;" autoplay="true" onplay="resize_canvas(this)"></video>
+    <canvas id="video_canvas"  style="width:640px; height:480px; position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(255,0,0,0.1);"></canvas>
+  </div>
+  <canvas style="display:none;" id="renderer"></canvas>
 
   <script type="text/javascript">
-    var canvas = document.getElementById("preview");
-    var context = canvas.getContext("2d");
+    var render_canvas = document.getElementById("renderer");
+    var context = render_canvas.getContext("2d");
 
-    canvas.width = 640;
-    canvas.height = 480;
+    render_canvas.width = 640;
+    render_canvas.height = 480;
 
-    context.width = canvas.width;
-    context.height = canvas.height;
+    context.width = render_canvas.width;
+    context.height = render_canvas.height;
 
     var video = document.getElementById("video");
     var socket = io();
 
     function sendVideo() {
       context.drawImage(video,0,0,context.width, context.height);
-      socket.emit('camera',canvas.toDataURL('image/webp'));
+      socket.emit('camera',render_canvas.toDataURL('image/webp'));
     }
 
     $(function(){
@@ -36,6 +39,17 @@
         });
       }
     });
+
+    function resize_canvas(element){
+      var w = element.offsetWidth;
+      var h = element.offsetHeight;
+      var cv = document.getElementById("video_canvas");
+      cv.width = w;
+      cv.height =h;
+      var ctx = cv.getContext("2d");
+      //ctx.fillStyle = "#FF0000";
+      //ctx.fillRect(0, 0, cv.width, cv.height);
+    }
 
   </script>
 </body>
