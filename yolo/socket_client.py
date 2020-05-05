@@ -25,9 +25,6 @@ def my_message(data):
     print(elapsed_time)
     sio.emit('yolo', result)
 
-
-
-
 @sio.event
 def disconnect():
     print('disconnected from server')

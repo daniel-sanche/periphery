@@ -17,12 +17,11 @@ io.on('connection',function(socket){
   });
 
   socket.on('camera',function(image){
-    console.log(`new image`);
     socket.broadcast.emit('stream',image);
   });
 
   socket.on('yolo',function(yolo_dict){
-    console.log(`new yolo`);
+    socket.broadcast.emit('yolo', yolo_dict);
   });
 
 });

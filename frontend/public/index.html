@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class="container">
-    <video src="" id="video" style="width:640px;height:480px;" autoplay="true" onplay="resize_canvas(this)"></video>
+    <video src="" id="video" style="width:640px;height:480px;" autoplay="true"></video>
     <canvas id="video_canvas"  style="width:640px; height:480px; position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(255,0,0,0.1);"></canvas>
   </div>
   <canvas style="display:none;" id="renderer"></canvas>
@@ -40,15 +40,23 @@
       }
     });
 
-    function resize_canvas(element){
-      var w = element.offsetWidth;
-      var h = element.offsetHeight;
+    socket.on('yolo', function(yolo_data){
+        console.log(yolo_data);
+        draw_yolo(yolo_data);
+    });
+
+    function draw_yolo(yolo_data){
       var cv = document.getElementById("video_canvas");
-      cv.width = w;
-      cv.height =h;
       var ctx = cv.getContext("2d");
-      //ctx.fillStyle = "#FF0000";
-      //ctx.fillRect(0, 0, cv.width, cv.height);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      for (let obj in yolo_data) {
+          ctx.beginPath();
+          ctx.lineWidth = "2";
+          ctx.strokeStyle = "red";
+          // ctx.rect(obj.x, obj.y, obj.width, obj.height);
+          ctx.rect(1, 1, 100, 100);
+          ctx.stroke();
+      }
     }
 
   </script>
