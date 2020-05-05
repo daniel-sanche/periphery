@@ -1,9 +1,9 @@
 {
-  "name": "socket-chat-example",
+  "name": "Wcam-Live",
   "version": "0.0.1",
-  "description": "my first socket.io app",
   "dependencies": {
-    "express": "^4.16.4",
-    "socket.io": "^2.3.0"
+    "express": "^4.16.2",
+    "log": "*",
+    "socket.io": "^2.0.4"
   }
 }

@@ -1,0 +1,42 @@
+<html>
+<head>
+  <title>tramsmitir</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <video src="" id="video" style="width:680px;height:320px;" autoplay="true"></video>
+  <canvas style="display:none;" id="preview"></canvas>
+
+  <script type="text/javascript">
+    var canvas = document.getElementById("preview");
+    var context = canvas.getContext("2d");
+
+    canvas.width = 320;
+    canvas.height = 240;
+
+    context.width = canvas.width;
+    context.height = canvas.height;
+
+    var video = document.getElementById("video");
+    var socket = io();
+
+    function sendVideo() {
+      context.drawImage(video,0,0,context.width, context.height);
+      socket.emit('stream',canvas.toDataURL('image/webp'));
+    }
+
+    $(function(){
+      const constraints = { video: true };
+      navigator.getUserMedia= (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
+      if(navigator.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+            video.srcObject = stream;
+            setInterval(sendVideo,33);
+        });
+      }
+    });
+
+  </script>
+</body>
+</html>

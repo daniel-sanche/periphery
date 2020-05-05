@@ -10,4 +10,4 @@ RUN npm install
 # Copy rest of the application csource code
 COPY . .
 
-ENTRYPOINT ["node", "src/index.js"]
+ENTRYPOINT ["node", "app.js"]
