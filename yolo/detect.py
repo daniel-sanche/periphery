@@ -56,12 +56,6 @@ def load_model(configpath,weightspath):
     return net
 
 
-def image_to_byte_array(image:Image):
-  imgByteArr = io.BytesIO()
-  image.save(imgByteArr, format='PNG')
-  imgByteArr = imgByteArr.getvalue()
-  return imgByteArr
-
 
 def get_predection(image,net,LABELS,COLORS):
     (H, W) = image.shape[:2]
@@ -129,21 +123,22 @@ def get_predection(image,net,LABELS,COLORS):
                             nmsthres)
 
     # ensure at least one detection exists
+    found_boxes = []
     if len(idxs) > 0:
         # loop over the indexes we are keeping
         for i in idxs.flatten():
+
             # extract the bounding box coordinates
             (x, y) = (boxes[i][0], boxes[i][1])
             (w, h) = (boxes[i][2], boxes[i][3])
-
-            # draw a bounding box rectangle and label on the image
-            color = [int(c) for c in COLORS[classIDs[i]]]
-            cv2.rectangle(image, (x, y), (x + w, y + h), color, 2)
-            text = "{}: {:.4f}".format(LABELS[classIDs[i]], confidences[i])
-            print(boxes)
-            print(classIDs)
-            cv2.putText(image, text, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX,0.5, color, 2)
-    return image
+            this_box = {'width': w,
+                        'height':h,
+                        'x':x,
+                        'y':y,
+                        'class':LABELS[classIDs[i]],
+                        'confidence':confidences[i]}
+            found_boxes.append(this_box)
+    return found_boxes
 
 
 labelsPath="yolo_v3/coco.names"
@@ -167,15 +162,8 @@ def main():
     npimg=np.array(img)
     image=npimg.copy()
     image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-    res=get_predection(image,nets,Lables,Colors)
-    # image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-    # show the output image
-    #cv2.imshow("Image", res)
-    #cv2.waitKey()
-    image=cv2.cvtColor(res,cv2.COLOR_BGR2RGB)
-    np_img=Image.fromarray(image)
-    img_encoded=image_to_byte_array(np_img)
-    return Response(response=img_encoded, status=200,mimetype="image/jpeg")
+    out_dict=get_predection(image,nets,Lables,Colors)
+    return {'yolo':out_dict}
 
     # start flask app
 if __name__ == '__main__':
