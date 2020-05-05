@@ -41,7 +41,6 @@
     });
 
     socket.on('yolo', function(yolo_data){
-        console.log(yolo_data);
         draw_yolo(yolo_data);
     });
 
@@ -49,13 +48,16 @@
       var cv = document.getElementById("video_canvas");
       var ctx = cv.getContext("2d");
       ctx.clearRect(0, 0, cv.width, cv.height);
-      for (let obj in yolo_data) {
+      for (let obj of yolo_data) {
+          console.log(obj);
           ctx.beginPath();
           ctx.lineWidth = "2";
           ctx.strokeStyle = "red";
           // ctx.rect(obj.x, obj.y, obj.width, obj.height);
           ctx.rect(1, 1, 100, 100);
           ctx.stroke();
+          ctx.font = "10px Arial";
+          ctx.strokeText(obj.item, 50, 20);
       }
     }
 

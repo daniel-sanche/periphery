@@ -114,7 +114,7 @@ class YOLO:
                             'height':h,
                             'x':x,
                             'y':y,
-                            'class':self.LABELS[classIDs[i]],
+                            'item':self.LABELS[classIDs[i]],
                             'confidence':confidences[i]}
                 found_boxes.append(this_box)
         return found_boxes
