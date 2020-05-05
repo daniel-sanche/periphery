@@ -37,13 +37,14 @@ class YOLO:
         print("[INFO] loading YOLO from disk...")
         self.net = cv2.dnn.readNetFromDarknet(cfgPath, weightsPath)
 
+        # determine only the *output* layer names that we need from YOLO
+        ln = self.net.getLayerNames()
+        self.ln = [ln[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
+
 
     def get_prediction(self, image):
         (H, W) = image.shape[:2]
 
-        # determine only the *output* layer names that we need from YOLO
-        ln = self.net.getLayerNames()
-        ln = [ln[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
 
         # construct a blob from the input image and then perform a forward
         # pass of the YOLO object detector, giving us our bounding boxes and
@@ -52,7 +53,7 @@ class YOLO:
                                      swapRB=True, crop=False)
         self.net.setInput(blob)
         start = time.time()
-        layerOutputs = self.net.forward(ln)
+        layerOutputs = self.net.forward(self.ln)
         end = time.time()
 
         # show timing information on YOLO
