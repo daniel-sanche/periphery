@@ -4,3 +4,4 @@ jsonpickle
 pybase64
 pillow
 Flask
+python-socketio[client]

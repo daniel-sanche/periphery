@@ -38,7 +38,7 @@ class YOLO:
         self.net = cv2.dnn.readNetFromDarknet(cfgPath, weightsPath)
 
 
-    def get_predection(self, image):
+    def get_prediction(self, image):
         (H, W) = image.shape[:2]
 
         # determine only the *output* layer names that we need from YOLO
@@ -119,26 +119,3 @@ class YOLO:
                             'confidence':confidences[i]}
                 found_boxes.append(this_box)
         return found_boxes
-
-
-# Initialize the Flask application
-app = Flask(__name__)
-
-# route http posts to this method
-@app.route('/api/test', methods=['POST'])
-def main():
-    # load our input image and grab its spatial dimensions
-    #image = cv2.imread("./test1.jpg")
-    img = request.files["image"].read()
-    img = Image.open(io.BytesIO(img))
-    npimg=np.array(img)
-    image=npimg.copy()
-    image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
-
-    out_dict = yolo.get_predection(image)
-    return {'yolo':out_dict}
-
-    # start flask app
-if __name__ == '__main__':
-    yolo = YOLO()
-    app.run(debug=True, host='0.0.0.0')
