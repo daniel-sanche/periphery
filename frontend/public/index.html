@@ -7,7 +7,7 @@
 <body>
   <div class="container">
     <video src="" id="video" style="width:640px;height:480px;" autoplay="true"></video>
-    <canvas id="video_canvas"  style="width:640px; height:480px; position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(255,0,0,0.1);"></canvas>
+    <canvas id="video_canvas"  width=640 height=480 style="position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(255,0,0,0.1);"></canvas>
   </div>
   <canvas style="display:none;" id="renderer"></canvas>
 
@@ -35,7 +35,7 @@
       if(navigator.getUserMedia) {
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
-            setInterval(sendVideo,100);
+            setInterval(sendVideo,5000);
         });
       }
     });
@@ -53,8 +53,8 @@
           ctx.beginPath();
           ctx.lineWidth = "2";
           ctx.strokeStyle = "red";
-          // ctx.rect(obj.x, obj.y, obj.width, obj.height);
-          ctx.rect(1, 1, 100, 100);
+          ctx.rect(obj.x, obj.y, obj.width, obj.height);
+          // ctx.rect(1, 1, 100, 100);
           ctx.stroke();
           ctx.font = "10px Arial";
           ctx.strokeText(obj.item, 50, 20);
