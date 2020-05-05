@@ -23,7 +23,7 @@
 
     function sendVideo() {
       context.drawImage(video,0,0,context.width, context.height);
-      socket.emit('stream',canvas.toDataURL('image/webp'));
+      socket.emit('camera',canvas.toDataURL('image/webp'));
     }
 
     $(function(){
@@ -32,7 +32,7 @@
       if(navigator.getUserMedia) {
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
-            setInterval(sendVideo,33);
+            setInterval(sendVideo,100);
         });
       }
     });

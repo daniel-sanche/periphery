@@ -20,10 +20,12 @@ def my_message(data):
     img = webp_to_img(data)
 
     # process image
-    yolo.get_prediction(img)
-
+    result = yolo.get_prediction(img)
     elapsed_time = time.process_time() - t
     print(elapsed_time)
+    sio.emit('yolo', result)
+
+
 
 
 @sio.event

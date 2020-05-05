@@ -53,7 +53,6 @@ class YOLO:
         self.net.setInput(blob)
         start = time.time()
         layerOutputs = self.net.forward(ln)
-        print(layerOutputs)
         end = time.time()
 
         # show timing information on YOLO
