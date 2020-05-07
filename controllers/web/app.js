@@ -16,10 +16,6 @@ io.on('connection',function(socket){
     console.log('user disconnected');
   });
 
-  socket.on('camera',function(image){
-    socket.broadcast.emit('stream',image);
-  });
-
   socket.on('frame_complete',function(yolo_dict){
     socket.broadcast.emit('render_update', yolo_dict);
   });
