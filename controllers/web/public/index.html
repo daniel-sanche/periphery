@@ -61,8 +61,11 @@
     });
 
     socket.on('disconnect', () => {
-        var cv = document.getElementById("video_canvas");
-        render_annotations([], cv);
+        console.log('server down');
+        for (model_name in canvas_dict) {
+            var cv = document.getElementById(model_name);
+            render_annotations([], cv);
+        }
     });
 
     socket.on('model_disconnect', (model_name) => {
