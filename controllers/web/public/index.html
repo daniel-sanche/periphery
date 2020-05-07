@@ -37,7 +37,9 @@
     socket.on('render_update', function(result_dict){
         model_name = result_dict.name;
         console.log(result_dict);
-        draw_yolo(result_dict.annotations);
+
+        var cv = document.getElementById("video_canvas");
+        render_annotations(result_dict.annotations, cv);
     });
 
     socket.on('connect', () => {
@@ -46,7 +48,8 @@
     });
 
     socket.on('disconnect', () => {
-        draw_yolo([]);
+        var cv = document.getElementById("video_canvas");
+        render_annotations([], cv);
     });
 
     socket.on('webcam_request', function(requester_id){
@@ -55,19 +58,20 @@
     });
 
 
-    function draw_yolo(yolo_data){
-      var cv = document.getElementById("video_canvas");
-      var ctx = cv.getContext("2d");
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      for (let obj of yolo_data) {
-          ctx.beginPath();
-          ctx.lineWidth = "2";
-          ctx.strokeStyle = "red";
-          ctx.rect(obj.x, obj.y, obj.width, obj.height);
-          // ctx.rect(1, 1, 100, 100);
-          ctx.stroke();
-          ctx.font = "20px Arial";
-          ctx.strokeText(obj.label + " - " + obj.confidence.toFixed(2), obj.x, obj.y);
+    function render_annotations(annotations_data, canvas){
+      var ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let obj of annotations_data) {
+          if (obj.kind == 'box'){
+              ctx.beginPath();
+              ctx.lineWidth = "2";
+              ctx.strokeStyle = "red";
+              ctx.rect(obj.x, obj.y, obj.width, obj.height);
+              // ctx.rect(1, 1, 100, 100);
+              ctx.stroke();
+              ctx.font = "20px Arial";
+              ctx.strokeText(obj.label + " - " + obj.confidence.toFixed(2), obj.x, obj.y);
+          }
       }
     }
 
