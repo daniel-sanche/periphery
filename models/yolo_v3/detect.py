@@ -112,11 +112,12 @@ class YOLO:
                 # extract the bounding box coordinates
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-                this_box = {'width': w,
+                this_box = {'kind':'box',
+                            'width': w,
                             'height':h,
                             'x':x,
                             'y':y,
-                            'item':self.LABELS[classIDs[i]],
+                            'label':self.LABELS[classIDs[i]],
                             'confidence':confidences[i]}
                 found_boxes.append(this_box)
         return found_boxes

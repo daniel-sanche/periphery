@@ -35,7 +35,9 @@
     });
 
     socket.on('render_update', function(result_dict){
-        draw_yolo(result_dict);
+        model_name = result_dict.name;
+        console.log(result_dict);
+        draw_yolo(result_dict.annotations);
     });
 
     socket.on('connect', () => {
@@ -58,7 +60,6 @@
       var ctx = cv.getContext("2d");
       ctx.clearRect(0, 0, cv.width, cv.height);
       for (let obj of yolo_data) {
-          console.log(obj);
           ctx.beginPath();
           ctx.lineWidth = "2";
           ctx.strokeStyle = "red";
@@ -66,7 +67,7 @@
           // ctx.rect(1, 1, 100, 100);
           ctx.stroke();
           ctx.font = "20px Arial";
-          ctx.strokeText(obj.item + " - " + obj.confidence.toFixed(2), obj.x, obj.y);
+          ctx.strokeText(obj.label + " - " + obj.confidence.toFixed(2), obj.x, obj.y);
       }
     }
 

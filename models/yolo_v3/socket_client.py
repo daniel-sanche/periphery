@@ -7,25 +7,30 @@ import time
 import cv2
 from detect import YOLO
 
+_model_name = 'yolo_v3'
+
 sio = socketio.Client()
 
 @sio.event
 def connect():
     print('connection established')
-    sio.emit('register', 'yolo_v3')
+    sio.emit('register', _model_name)
     sio.emit('frame_request')
 
 @sio.on("process_frame")
 def my_message(data):
     print('frame received')
-    t = time.process_time()
+    t = time.time()
     img = webp_to_img(data)
 
     # process image
-    result = yolo.get_prediction(img)
-    elapsed_time = time.process_time() - t
+    boxes = yolo.get_prediction(img)
+    elapsed_time = time.time() - t
+    payload = {'name':_model_name,
+               'annotations': boxes,
+               'process_time': elapsed_time}
     print(elapsed_time)
-    sio.emit('frame_complete', result)
+    sio.emit('frame_complete', payload)
     sio.emit('frame_request')
 
 @sio.event

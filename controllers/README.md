@@ -15,8 +15,8 @@
 
 ### ResultYAML
 ```
-model_name: yolo
-result:
+name: yolo
+annotations:
   - kind: box
     x: 0
     y: 0
