@@ -13,9 +13,9 @@ sio = socketio.Client()
 def connect():
     print('connection established')
 
-@sio.on("stream")
+@sio.on("process_frame")
 def my_message(data):
-    print('message received')
+    print('frame received')
     t = time.process_time()
     img = webp_to_img(data)
 
@@ -23,7 +23,8 @@ def my_message(data):
     result = yolo.get_prediction(img)
     elapsed_time = time.process_time() - t
     print(elapsed_time)
-    sio.emit('yolo', result)
+    sio.emit('frame_complete', result)
+    sio.emit('frame_request')
 
 @sio.event
 def disconnect():
@@ -39,4 +40,6 @@ def webp_to_img(blob):
 
 yolo = YOLO()
 sio.connect('http://localhost:8080')
+
+sio.emit('frame_request')
 sio.wait()

@@ -24,25 +24,25 @@
     var video = document.getElementById("video");
     var socket = io();
 
-    function sendVideo() {
-      context.drawImage(video,0,0,context.width, context.height);
-      socket.emit('camera',render_canvas.toDataURL('image/webp'));
-    }
-
     $(function(){
       const constraints = { video: true };
       navigator.getUserMedia= (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
       if(navigator.getUserMedia) {
         navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
-            setInterval(sendVideo,600);
         });
       }
     });
 
-    socket.on('yolo', function(yolo_data){
+    socket.on('render_update', function(result_dict){
         draw_yolo(yolo_data);
     });
+
+    socket.on('webcam_request', function(requester_id){
+      context.drawImage(video,0,0,context.width, context.height);
+      socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
+    });
+
 
     function draw_yolo(yolo_data){
       var cv = document.getElementById("video_canvas");
