@@ -12,6 +12,7 @@ sio = socketio.Client()
 @sio.event
 def connect():
     print('connection established')
+    sio.emit('register', 'yolo_v3')
     sio.emit('frame_request')
 
 @sio.on("process_frame")

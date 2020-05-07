@@ -16,20 +16,22 @@ io.on('connection',function(socket){
     console.log('user disconnected');
   });
 
+  socket.on('register', (kind) => {
+    console.log(kind + ' registered');
+    socket.join(kind);
+  });
+
   socket.on('frame_complete',function(yolo_dict){
-    socket.broadcast.emit('render_update', yolo_dict);
+    socket.to('client').emit('render_update', yolo_dict);
   });
 
   socket.on('frame_request',function(){
-    socket.broadcast.emit('webcam_request', socket.id);
+    socket.to('client').emit('webcam_request', socket.id);
   });
 
   socket.on('webcam_response',function(requester_id, image_data){
     socket.to(requester_id).emit('process_frame', image_data);
   });
-
-
-
 });
 
 // starts an http server on the $PORT environment variable

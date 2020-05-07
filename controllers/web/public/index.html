@@ -38,6 +38,11 @@
         draw_yolo(result_dict);
     });
 
+    socket.on('connect', () => {
+      console.log('connected');
+      socket.emit('register', 'client');
+    });
+
     socket.on('disconnect', () => {
         draw_yolo([]);
     });
