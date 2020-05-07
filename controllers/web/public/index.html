@@ -24,6 +24,7 @@
     var socket = io();
 
     var canvas_dict = {};
+    var img_dict = {};
 
     $(function(){
       const constraints = { video: true };
@@ -45,14 +46,15 @@
             canvas.id = model_name;
             canvas.width = render_canvas.width;
             canvas.height = render_canvas.height;
-            canvas.style="position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(0,255,0,0.1);"
+            canvas.style="position:absolute; top:9; left: 9; z-index: 10;"// background-color:rgba(0,255,0,0.1);"
             document.getElementById('container').appendChild(canvas);
             // add new canvas to map
             canvas_dict[model_name] = canvas;
-        } else {
-            var canvas = document.getElementById(model_name);
+            // create new image for this model
+            var img = new Image;
+            img_dict[model_name] = img;
         }
-        render_annotations(result_dict.annotations, canvas);
+        render_annotations(result_dict.annotations, model_name);
     });
 
     socket.on('connect', () => {
@@ -63,15 +65,13 @@
     socket.on('disconnect', () => {
         console.log('server down');
         for (model_name in canvas_dict) {
-            var cv = document.getElementById(model_name);
-            render_annotations([], cv);
+            render_annotations([], model_name);
         }
     });
 
     socket.on('model_disconnect', (model_name) => {
         console.log(model_name + ' disconnected');
-        var canvas = document.getElementById(model_name);
-        render_annotations([], canvas);
+        render_annotations([], model_name);
     });
 
     socket.on('webcam_request', function(requester_id){
@@ -80,7 +80,8 @@
     });
 
 
-    function render_annotations(annotations_data, canvas){
+    function render_annotations(annotations_data,  model_name){
+      var canvas = canvas_dict[model_name];
       var ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let obj of annotations_data) {
@@ -89,13 +90,19 @@
               ctx.lineWidth = "2";
               ctx.strokeStyle = "red";
               ctx.rect(obj.x, obj.y, obj.width, obj.height);
-              // ctx.rect(1, 1, 100, 100);
               ctx.stroke();
               ctx.font = "20px Arial";
               labelText = obj.label + " - " + obj.confidence.toFixed(2);
               var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
               var labelY = Math.max(obj.y, 20);
               ctx.strokeText(labelText, labelX, labelY);
+          } else if (obj.kind == 'image'){
+            var img = img_dict[model_name];
+            ctx.drawImage(img, 0, 0);
+            img.src = obj.data;
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0);
+            }
           }
       }
     }
