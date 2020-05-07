@@ -65,6 +65,12 @@
         render_annotations([], cv);
     });
 
+    socket.on('model_disconnect', (model_name) => {
+        console.log(model_name + ' disconnected');
+        var canvas = document.getElementById(model_name);
+        render_annotations([], canvas);
+    });
+
     socket.on('webcam_request', function(requester_id){
       render_context.drawImage(video,0,0,render_context.width, render_context.height);
       socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));

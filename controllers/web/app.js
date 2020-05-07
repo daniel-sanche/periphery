@@ -3,6 +3,8 @@ var app = new express ();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 
+var connected_clients = {};
+
 app.use(express.static(__dirname + "/public"));
 
 app.get('/',function(req,res){
@@ -13,12 +15,16 @@ io.on('connection',function(socket){
   console.log('a user connected');
 
   socket.on('disconnect', () => {
-    console.log('user disconnected');
+    kind = connected_clients[socket.id];
+    console.log(kind + ' disconnected');
+    socket.to('client').emit('model_disconnect', kind);
+    delete connected_clients[socket.id];
   });
 
   socket.on('register', (kind) => {
     console.log(kind + ' registered');
     socket.join(kind);
+    connected_clients[socket.id] = kind;
   });
 
   socket.on('frame_complete',function(yolo_dict){
