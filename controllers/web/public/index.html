@@ -5,24 +5,25 @@
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="container">
     <video src="" id="video" style="width:640px;height:480px;" autoplay="true"></video>
-    <canvas id="video_canvas"  width=640 height=480 style="position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(255,0,0,0.1);"></canvas>
   </div>
   <canvas style="display:none;" id="renderer"></canvas>
 
   <script type="text/javascript">
     var render_canvas = document.getElementById("renderer");
-    var context = render_canvas.getContext("2d");
+    var render_context = render_canvas.getContext("2d");
 
     render_canvas.width = 640;
     render_canvas.height = 480;
 
-    context.width = render_canvas.width;
-    context.height = render_canvas.height;
+    render_context.width = render_canvas.width;
+    render_context.height = render_canvas.height;
 
     var video = document.getElementById("video");
     var socket = io();
+
+    var canvas_dict = {};
 
     $(function(){
       const constraints = { video: true };
@@ -35,11 +36,23 @@
     });
 
     socket.on('render_update', function(result_dict){
-        model_name = result_dict.name;
         console.log(result_dict);
 
-        var cv = document.getElementById("video_canvas");
-        render_annotations(result_dict.annotations, cv);
+        model_name = result_dict.name;
+        if ( !(model_name in canvas_dict) ){
+            // create new canvas layer for this model
+            var canvas = document.createElement("canvas");
+            canvas.id = model_name;
+            canvas.width = render_canvas.width;
+            canvas.height = render_canvas.height;
+            canvas.style="position:absolute; top:9; left: 9; z-index: 10; background-color:rgba(0,255,0,0.1);"
+            document.getElementById('container').appendChild(canvas);
+            // add new canvas to map
+            canvas_dict[model_name] = canvas;
+        } else {
+            var canvas = document.getElementById(model_name);
+        }
+        render_annotations(result_dict.annotations, canvas);
     });
 
     socket.on('connect', () => {
@@ -53,7 +66,7 @@
     });
 
     socket.on('webcam_request', function(requester_id){
-      context.drawImage(video,0,0,context.width, context.height);
+      render_context.drawImage(video,0,0,render_context.width, render_context.height);
       socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
     });
 
