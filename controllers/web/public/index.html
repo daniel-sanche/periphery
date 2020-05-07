@@ -35,7 +35,7 @@
     });
 
     socket.on('render_update', function(result_dict){
-        draw_yolo(yolo_data);
+        draw_yolo(result_dict);
     });
 
     socket.on('webcam_request', function(requester_id){

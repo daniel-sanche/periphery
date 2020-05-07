@@ -12,6 +12,7 @@ sio = socketio.Client()
 @sio.event
 def connect():
     print('connection established')
+    sio.emit('frame_request')
 
 @sio.on("process_frame")
 def my_message(data):
@@ -41,5 +42,4 @@ def webp_to_img(blob):
 yolo = YOLO()
 sio.connect('http://localhost:8080')
 
-sio.emit('frame_request')
 sio.wait()

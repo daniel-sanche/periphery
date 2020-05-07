@@ -50,7 +50,7 @@ class YOLO:
         # construct a blob from the input image and then perform a forward
         # pass of the YOLO object detector, giving us our bounding boxes and
         # associated probabilities
-        blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (128, 128),
+        blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (256, 256),
                                      swapRB=True, crop=False)
         self.net.setInput(blob)
         start = time.time()
