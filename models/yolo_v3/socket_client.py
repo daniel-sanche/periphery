@@ -8,7 +8,7 @@ import cv2
 from detect import YOLO
 
 _model_name = 'yolo_v3'
-_last_processed_time = time.time()
+_last_activity_time = time.time()
 
 sio = socketio.Client()
 
@@ -20,17 +20,18 @@ def connect():
 
 @sio.on("process_frame")
 def process_frame(data):
-    global _last_processed_time
+    global _last_activity_time
     start_time = time.time()
+    _last_activity_time = start_time
     img = webp_to_img(data)
     # process image
     boxes = yolo.get_prediction(img)
     # build payload
-    _last_processed_time = time.time()
-    elapsed_time = _last_processed_time - start_time
+    end_time = time.time()
+    _last_activity_time = end_time
     payload = {'name':_model_name,
                'annotations': boxes,
-               'clock_time': elapsed_time}
+               'clock_time': end_time - start_time}
     sio.emit('frame_complete', payload)
     # request a new frame
     sio.emit('frame_request')
@@ -48,10 +49,10 @@ def webp_to_img(blob):
     return image
 
 def poll_timer():
-    global _last_processed_time
+    global _last_activity_time
     while True:
         time.sleep(1)
-        if time.time() - _last_processed_time > 5:
+        if time.time() - _last_activity_time > 5:
             print('No activity. Querying controller again')
             sio.emit('frame_request')
 
