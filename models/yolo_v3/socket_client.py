@@ -4,7 +4,6 @@ from PIL import Image
 import io
 import numpy as np
 import time
-import cv2
 from detect import YOLO
 
 _model_name = 'yolo_v3'
@@ -23,16 +22,18 @@ def connect():
 
 
 @sio.on("process_frame")
-def process_frame(data):
+def process_frame(data_url):
     global _last_activity_time
     start_time = time.time()
     _last_activity_time = start_time
-    img = _decode_img(data)
     # process image
+    img = _decode_img(data_url)
     boxes = yolo.get_prediction(img)
     # build payload
     end_time = time.time()
     _last_activity_time = end_time
+    print("[INFO] {} processing time: {:.6f} seconds"
+          .format(_model_name, end_time - start_time))
     payload = {'name': _model_name,
                'annotations': boxes,
                'clock_time': end_time - start_time}
@@ -47,12 +48,11 @@ def disconnect():
     print('disconnected from server')
 
 
-def _decode_img(blob):
-    image_data = b64decode(blob.split(',')[1])
+def _decode_img(data_url):
+    image_data = b64decode(data_url.split(',')[1])
     img = Image.open(io.BytesIO(image_data))
     npimg = np.array(img)
     image = npimg.copy()
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     return image
 
 

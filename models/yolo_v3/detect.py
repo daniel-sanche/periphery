@@ -45,20 +45,14 @@ class YOLO:
     def get_prediction(self, image):
         (H, W) = image.shape[:2]
 
-
-
         # construct a blob from the input image and then perform a forward
         # pass of the YOLO object detector, giving us our bounding boxes and
         # associated probabilities
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         blob = cv2.dnn.blobFromImage(image, 1 / 255.0, (256, 256),
-                                     swapRB=True, crop=False)
+                                     swapRB=False, crop=False)
         self.net.setInput(blob)
-        start = time.time()
         layerOutputs = self.net.forward(self.ln)
-        end = time.time()
-
-        # show timing information on YOLO
-        print("[INFO] YOLO took {:.6f} seconds".format(end - start))
 
         # initialize our lists of detected bounding boxes, confidences, and
         # class IDs, respectively
