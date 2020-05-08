@@ -8,6 +8,11 @@
   <div class="container" id="container">
     <video src="" id="video" style="width:640px;height:480px;" autoplay="true"></video>
   </div>
+  <div class="config" id="config">
+      <p>Connected models:</p>
+      <select id="model-select">
+      </select>
+  </div>
   <canvas style="display:none;" id="renderer"></canvas>
 
   <script type="text/javascript">
@@ -57,8 +62,10 @@
             img_dict[model_name] = img;
         }
         render_annotations(result_dict.annotations, model_name);
-        connected_models.add(model_name);
-        console.log(connected_models);
+        if (!connected_models.has(model_name)){
+            connected_models.add(model_name);
+            render_config_view();
+        }
     });
 
     socket.on('connect', () => {
@@ -72,12 +79,14 @@
             render_annotations([], model_name);
         }
         connected_models = [];
+        render_config_view();
     });
 
     socket.on('model_disconnect', (model_name) => {
         console.log(model_name + ' disconnected');
         render_annotations([], model_name);
         connected_models.delete(model_name);
+        render_config_view();
     });
 
     socket.on('webcam_request', function(requester_id){
@@ -111,6 +120,23 @@
             }
           }
       }
+    }
+
+
+    function render_config_view(){
+        // reset select options
+        var select = document.getElementById("model-select");
+        var length = select.options.length;
+        for (i = length-1; i >= 0; i--) {
+              select.options[i] = null;
+        }
+        for (let model_name of connected_models){
+            var opt = document.createElement("option");
+            opt.value = model_name;
+            opt.innerHTML = model_name;
+            console.log(opt);
+            select.appendChild(opt);
+        }
     }
 
   </script>
