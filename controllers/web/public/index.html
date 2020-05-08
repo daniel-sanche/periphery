@@ -78,7 +78,7 @@
         for (model_name in canvas_dict) {
             render_annotations([], model_name);
         }
-        connected_models = [];
+        connected_models.clear();
         render_config_view();
     });
 
@@ -118,7 +118,8 @@
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
             }
-            canvas.style.z-index = 1;
+            console.log(canvas.style);
+            canvas.style.zIndex = 1;
           }
       }
     }
@@ -135,7 +136,6 @@
             var opt = document.createElement("option");
             opt.value = model_name;
             opt.innerHTML = model_name;
-            console.log(opt);
             select.appendChild(opt);
         }
     }
