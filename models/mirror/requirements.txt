@@ -1,0 +1,4 @@
+numpy
+pybase64
+pillow
+python-socketio[client]
