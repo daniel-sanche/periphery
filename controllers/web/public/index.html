@@ -53,7 +53,7 @@
             canvas.id = model_name;
             canvas.width = render_canvas.width;
             canvas.height = render_canvas.height;
-            canvas.style="position:absolute; top:9; left: 9; z-index: 10;"// background-color:rgba(0,255,0,0.1);"
+            canvas.style="position:absolute; top:9; left: 9; z-index: 2;"// background-color:rgba(0,255,0,0.1);"
             document.getElementById('container').appendChild(canvas);
             // add new canvas to map
             canvas_dict[model_name] = canvas;
@@ -118,6 +118,7 @@
             img.onload = function() {
                 ctx.drawImage(img, 0, 0);
             }
+            canvas.style.z-index = 1;
           }
       }
     }
