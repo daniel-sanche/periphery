@@ -4,7 +4,7 @@ from PIL import Image
 import io
 import numpy as np
 import time
-from detect import YOLO
+from model import YOLO
 
 _model_name = 'yolo_v3'
 _inactivity_threshold = 5
