@@ -26,6 +26,8 @@
     var canvas_dict = {};
     var img_dict = {};
 
+    var connected_models = new Set();
+
     $(function(){
       const constraints = { video: true };
       navigator.getUserMedia= (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
@@ -55,6 +57,8 @@
             img_dict[model_name] = img;
         }
         render_annotations(result_dict.annotations, model_name);
+        connected_models.add(model_name);
+        console.log(connected_models);
     });
 
     socket.on('connect', () => {
@@ -67,11 +71,13 @@
         for (model_name in canvas_dict) {
             render_annotations([], model_name);
         }
+        connected_models = [];
     });
 
     socket.on('model_disconnect', (model_name) => {
         console.log(model_name + ' disconnected');
         render_annotations([], model_name);
+        connected_models.delete(model_name);
     });
 
     socket.on('webcam_request', function(requester_id){
