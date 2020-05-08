@@ -28,12 +28,11 @@ def process_frame(data_url):
     img = _decode_img(data_url)
     # convert back to webp
     out_url = _encode_img(img)
-    print(data_url[:100])
-    print(out_url[:100])
-    print('')
     # build payload
     end_time = time.time()
     _last_activity_time = end_time
+    print("[INFO] {} processing time: {:.6f} seconds"
+          .format(_model_name, end_time - start_time))
     payload = {'name': _model_name,
                'annotations': [
                     {'kind': 'image',
