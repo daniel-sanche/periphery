@@ -58,16 +58,33 @@
 
       data: {
         height: 480,
-        width: 640
+        width: 640,
+        connected_models: []
       },
 
       created: function() {
+        var vm = this;
+
         socket.on('webcam_request', function(requester_id){
           var render_canvas = document.getElementById("renderer");
           var render_context = render_canvas.getContext("2d");
 
           render_context.drawImage(video, 0,0,render_context.width, render_context.height);
           socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
+        });
+
+        socket.on('render_update', function(result_dict){
+            model_name = result_dict.name;
+            if (!(vm.connected_models.includes(model_name))){
+                vm.connected_models.push(model_name);
+            }
+        });
+
+        socket.on('model_disconnect', (model_name) => {
+            const idx = vm.connected_models.indexOf(model_name);
+            if (idx > -1) {
+                vm.connected_models.splice(idx, 1);
+            }
         });
      },
 
@@ -79,6 +96,12 @@
           navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
           });
+        }
+      },
+
+      watch: {
+        connected_models: function (val, oldVal) {
+          console.log(val);
         }
       }
     })
