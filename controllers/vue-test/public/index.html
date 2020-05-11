@@ -14,8 +14,8 @@
   <div class="container" id="container">
       <canvas  v-for="model_name in connected_models" v-bind:id=model_name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2; background-color:rgba(0,255,0,0.1);"></canvas>
       <video id="video" v-bind:style="{width: width + 'px', height: height + 'px'}" autoplay="true"></video>
-      <canvas v-bind:width=width v-bind:height=height style="display:none;" id="renderer"></canvas>
   </div>
+  <canvas style="display:none;" id="renderer"></canvas>
 
    <!--model controls-->
     <div class="card-columns mt-3" id="cards">
@@ -67,13 +67,20 @@
 
       created: function() {
         var vm = this;
+        var render_canvas = document.getElementById("renderer");
+        var render_context = render_canvas.getContext("2d");
+        render_canvas.width = this.width;
+        render_canvas.height = this.height;
+        render_context.width = this.width;
+        render_context.height = this.height;
 
         socket.on('webcam_request', function(requester_id){
-          var render_canvas = document.getElementById("renderer");
-          var render_context = render_canvas.getContext("2d");
-
-          render_context.drawImage(video, 0,0,render_context.width, render_context.height);
-          socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
+          if (video.srcObject){
+            render_context.drawImage(video, 0,0,render_context.width, render_context.height);
+            socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
+          } else {
+            console.log('camera not authorized');
+          }
         });
 
         socket.on('render_update', function(result_dict){
