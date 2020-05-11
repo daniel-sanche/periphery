@@ -10,6 +10,7 @@
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+  <div class="vue" id="vue">
    <!--video feed and canvas layers-->
   <div class="container" id="container">
       <canvas  v-for="model_name in connected_models" v-bind:id=model_name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2; background-color:rgba(0,255,0,0.1);"></canvas>
@@ -21,7 +22,7 @@
     <div class="card-columns mt-3" id="cards">
         <div class="card bg-light" style="width: 18rem;" v-for="model in connected_models">
           <div class="card-body">
-            <h5 class="card-title">{{ model.name }}</h5>
+            <h5 class="card-title">{{ model }}</h5>
             <div class="form-group">
               <div class="custom-control custom-switch">
                 <input type="checkbox" id="dsafasd" v-model="model.is_enabled" name="enabledSwitch">
@@ -31,6 +32,7 @@
           </div>
         </div>
     </div>
+  </div>
 
   <script type="text/javascript">
     var socket = io();
@@ -40,42 +42,8 @@
         socket.emit('register', 'client');
     });
 
-    var app4 = new Vue({
-      el: '#cards',
-      data: {
-        connected_models: []
-      },
-
-      created: function() {
-        var vm = this;
-
-        socket.on('render_update', function(result_dict){
-            model_name = result_dict.name;
-            model_obj = {name: model_name, is_enabled: true};
-
-            if (!(vm.connected_models.some(e => e.name == model_name))){
-                vm.connected_models.push(model_obj);
-            }
-        });
-
-        socket.on('model_disconnect', (model_name) => {
-            for(var i = 0; i < vm.connected_models.length; i++) {
-                if ( vm.connected_models[i].name === model_name) {
-                    vm.connected_models.splice(i, 1);
-                }
-            }
-        });
-
-        socket.on('disconnect', () => {
-            console.log('server down');
-            vm.connected_models = [];
-        });
-      }
-    })
-
-    var video_feed = new Vue({
-      el: '#container',
-
+    var app = new Vue({
+      el: '#vue',
       data: {
         height: 480,
         width: 640,
@@ -83,6 +51,7 @@
         latest_states: {},
         img: new Image
       },
+
 
       created: function() {
         var vm = this;
@@ -108,7 +77,6 @@
                 vm.connected_models.push(model_name);
             }
             vm.latest_states[model_name] = result_dict;
-            //console.log(result_dict);
             vm.render_annotations(result_dict.annotations, model_name);
         });
 
@@ -133,12 +101,6 @@
           navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
             video.srcObject = stream;
           });
-        }
-      },
-
-      watch: {
-        connected_models: function (val, oldVal) {
-          console.log(val);
         }
       },
 
