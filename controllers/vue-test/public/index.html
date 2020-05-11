@@ -13,7 +13,7 @@
    <!--video feed and canvas layers-->
   <div class="container" id="container">
       <video id="video" v-bind:style="{width: width + 'px', height: height + 'px'}" autoplay="true"></video>
-      <canvas style="display:none;" id="renderer"></canvas>
+      <canvas v-bind:width=width v-bind:height=height style="display:none;" id="renderer"></canvas>
   </div>
 
    <!--model controls-->
@@ -61,19 +61,13 @@
         width: 640
       },
 
-      created() {
-        var render_canvas = document.getElementById("renderer");
-        var render_context = render_canvas.getContext("2d");
-
-        render_canvas.width = 640;
-        render_canvas.height = 480;
-
-        render_context.width = render_canvas.width;
-        render_context.height = render_canvas.height;
+      created: function() {
         socket.on('webcam_request', function(requester_id){
+          var render_canvas = document.getElementById("renderer");
+          var render_context = render_canvas.getContext("2d");
+
           render_context.drawImage(video, 0,0,render_context.width, render_context.height);
           socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
-          console.log(render_canvas.toDataURL('image/webp'));
         });
      },
 
