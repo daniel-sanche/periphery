@@ -59,7 +59,8 @@
       data: {
         height: 480,
         width: 640,
-        connected_models: []
+        connected_models: [],
+        latest_states: {}
       },
 
       created: function() {
@@ -78,6 +79,7 @@
             if (!(vm.connected_models.includes(model_name))){
                 vm.connected_models.push(model_name);
             }
+            vm.latest_states[model_name] = result_dict;
         });
 
         socket.on('model_disconnect', (model_name) => {
