@@ -24,8 +24,8 @@
             <h5 class="card-title">{{ model.name }}</h5>
             <div class="form-group">
               <div class="custom-control custom-switch">
-                <input type="checkbox" v-bind:checked=model.is_enabled class="custom-control-input" id="customSwitch1">
-                <label class="custom-control-label" for="customSwitch1">Enabled</label>
+                <input type="checkbox" id="dsafasd" v-model="model.is_enabled" name="enabledSwitch">
+                <label for="enabledSwitch">Enabled</label>
               </div>
             </div>
           </div>
@@ -70,9 +70,7 @@
             console.log('server down');
             vm.connected_models = [];
         });
-     },
-
-
+      }
     })
 
     var video_feed = new Vue({
