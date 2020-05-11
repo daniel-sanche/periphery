@@ -12,6 +12,7 @@
 <body>
    <!--video feed and canvas layers-->
   <div class="container" id="container">
+      <canvas  v-for="model in connected_models" v-bind:id=model.name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2; background-color:rgba(0,255,0,0.1);"></canvas>
       <video id="video" v-bind:style="{width: width + 'px', height: height + 'px'}" autoplay="true"></video>
       <canvas v-bind:width=width v-bind:height=height style="display:none;" id="renderer"></canvas>
   </div>
