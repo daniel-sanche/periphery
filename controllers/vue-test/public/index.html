@@ -19,7 +19,7 @@
 
    <!--model controls-->
     <div class="card-columns mt-3" id="cards">
-        <div class="card bg-light" style="width: 18rem;" v-for="model in models">
+        <div class="card bg-light" style="width: 18rem;" v-for="model in connected_models">
           <div class="card-body">
             <h5 class="card-title">{{ model.name }}</h5>
             <div class="form-group">
@@ -43,15 +43,36 @@
     var app4 = new Vue({
       el: '#cards',
       data: {
-        models: [
-          { name: 'yolo_v4',
-            is_enabled: true
-          },
-          { name: 'mirror',
-            is_enabled: false
-          },
-        ]
+        connected_models: []
       },
+
+      created: function() {
+        var vm = this;
+
+        socket.on('render_update', function(result_dict){
+            model_name = result_dict.name;
+            model_obj = {name: model_name, is_enabled: true};
+
+            if (!(vm.connected_models.some(e => e.name == model_name))){
+                vm.connected_models.push(model_obj);
+            }
+        });
+
+        socket.on('model_disconnect', (model_name) => {
+            for(var i = 0; i < vm.connected_models.length; i++) {
+                if ( vm.connected_models[i].name === model_name) {
+                    vm.connected_models.splice(i, 1);
+                }
+            }
+        });
+
+        socket.on('disconnect', () => {
+            console.log('server down');
+            vm.connected_models = [];
+        });
+     },
+
+
     })
 
     var video_feed = new Vue({
