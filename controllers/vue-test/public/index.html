@@ -127,32 +127,33 @@
        render_annotations(annotations_data,  model_name){
           var vm = this;
           var canvas = document.getElementById(model_name);
-          var ctx = canvas.getContext("2d");
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          for (let obj of annotations_data) {
-              if (obj.kind == 'box'){
-                  ctx.beginPath();
-                  ctx.lineWidth = "2";
-                  ctx.strokeStyle = "red";
-                  ctx.rect(obj.x, obj.y, obj.width, obj.height);
-                  ctx.stroke();
-                  ctx.font = "20px Arial";
-                  labelText = obj.label + " - " + obj.confidence.toFixed(2);
-                  var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
-                  var labelY = Math.max(obj.y, 20);
-                  ctx.strokeText(labelText, labelX, labelY);
-              } else if (obj.kind == 'image'){
-                ctx.drawImage(this.img, 0, 0);
-                vm.img.src = obj.data;
-                vm.img.onload = function() {
-                    ctx.drawImage(vm.img, 0, 0);
-                }
-                canvas.style.zIndex = 1;
+          if (canvas) {
+              var ctx = canvas.getContext("2d");
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              for (let obj of annotations_data) {
+                  if (obj.kind == 'box'){
+                      ctx.beginPath();
+                      ctx.lineWidth = "2";
+                      ctx.strokeStyle = "red";
+                      ctx.rect(obj.x, obj.y, obj.width, obj.height);
+                      ctx.stroke();
+                      ctx.font = "20px Arial";
+                      labelText = obj.label + " - " + obj.confidence.toFixed(2);
+                      var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
+                      var labelY = Math.max(obj.y, 20);
+                      ctx.strokeText(labelText, labelX, labelY);
+                  } else if (obj.kind == 'image'){
+                    ctx.drawImage(this.img, 0, 0);
+                    vm.img.src = obj.data;
+                    vm.img.onload = function() {
+                        ctx.drawImage(vm.img, 0, 0);
+                    }
+                    canvas.style.zIndex = 1;
+                  }
               }
           }
         }
       }
-
     })
 
   </script>
