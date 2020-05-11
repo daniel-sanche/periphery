@@ -13,7 +13,7 @@
   <div class="vue" id="vue">
    <!--video feed and canvas layers-->
   <div class="container" id="container">
-      <canvas  v-for="model_name in connected_models" v-bind:id=model_name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2; background-color:rgba(0,255,0,0.1);"></canvas>
+      <canvas  v-for="model_name in connected_models" v-bind:id=model_name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2;"></canvas>
       <video id="video" v-bind:style="{width: width + 'px', height: height + 'px'}" autoplay="true"></video>
   </div>
   <canvas style="display:none;" id="renderer"></canvas>
@@ -25,7 +25,7 @@
             <h5 class="card-title">{{ model }}</h5>
             <div class="form-group">
               <div class="custom-control custom-switch">
-                <input type="checkbox" id="dsafasd" v-model="model.is_enabled" name="enabledSwitch">
+                <input type="checkbox" id="enabled-box" v-model="enabled_dict[model]" name="enabledSwitch">
                 <label for="enabledSwitch">Enabled</label>
               </div>
             </div>
@@ -49,7 +49,8 @@
         width: 640,
         connected_models: [],
         latest_states: {},
-        img: new Image
+        img: new Image,
+        enabled_dict: {}
       },
 
 
@@ -111,25 +112,27 @@
           if (canvas) {
               var ctx = canvas.getContext("2d");
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              for (let obj of annotations_data) {
-                  if (obj.kind == 'box'){
-                      ctx.beginPath();
-                      ctx.lineWidth = "2";
-                      ctx.strokeStyle = "red";
-                      ctx.rect(obj.x, obj.y, obj.width, obj.height);
-                      ctx.stroke();
-                      ctx.font = "20px Arial";
-                      labelText = obj.label + " - " + obj.confidence.toFixed(2);
-                      var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
-                      var labelY = Math.max(obj.y, 20);
-                      ctx.strokeText(labelText, labelX, labelY);
-                  } else if (obj.kind == 'image'){
-                    ctx.drawImage(this.img, 0, 0);
-                    vm.img.src = obj.data;
-                    vm.img.onload = function() {
-                        ctx.drawImage(vm.img, 0, 0);
-                    }
-                    canvas.style.zIndex = 1;
+              if (vm.enabled_dict[model_name]) {
+                  for (let obj of annotations_data) {
+                      if (obj.kind == 'box'){
+                          ctx.beginPath();
+                          ctx.lineWidth = "2";
+                          ctx.strokeStyle = "red";
+                          ctx.rect(obj.x, obj.y, obj.width, obj.height);
+                          ctx.stroke();
+                          ctx.font = "20px Arial";
+                          labelText = obj.label + " - " + obj.confidence.toFixed(2);
+                          var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
+                          var labelY = Math.max(obj.y, 20);
+                          ctx.strokeText(labelText, labelX, labelY);
+                      } else if (obj.kind == 'image'){
+                        ctx.drawImage(this.img, 0, 0);
+                        vm.img.src = obj.data;
+                        vm.img.onload = function() {
+                            ctx.drawImage(vm.img, 0, 0);
+                        }
+                        canvas.style.zIndex = 1;
+                      }
                   }
               }
           }
