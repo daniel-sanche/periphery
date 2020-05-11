@@ -12,7 +12,7 @@
 <body>
    <!--video feed and canvas layers-->
   <div class="container" id="container">
-      <canvas  v-for="model in connected_models" v-bind:id=model.name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2; background-color:rgba(0,255,0,0.1);"></canvas>
+      <canvas  v-for="model_name in connected_models" v-bind:id=model_name v-bind:width=width v-bind:height=height style="position:absolute; top:9; left: 9; z-index: 2; background-color:rgba(0,255,0,0.1);"></canvas>
       <video id="video" v-bind:style="{width: width + 'px', height: height + 'px'}" autoplay="true"></video>
       <canvas v-bind:width=width v-bind:height=height style="display:none;" id="renderer"></canvas>
   </div>
@@ -61,7 +61,8 @@
         height: 480,
         width: 640,
         connected_models: [],
-        latest_states: {}
+        latest_states: {},
+        img: new Image
       },
 
       created: function() {
@@ -81,6 +82,8 @@
                 vm.connected_models.push(model_name);
             }
             vm.latest_states[model_name] = result_dict;
+            //console.log(result_dict);
+            vm.render_annotations(result_dict.annotations, model_name);
         });
 
         socket.on('model_disconnect', (model_name) => {
@@ -111,8 +114,40 @@
         connected_models: function (val, oldVal) {
           console.log(val);
         }
+      },
+
+      methods: {
+       render_annotations(annotations_data,  model_name){
+          var vm = this;
+          var canvas = document.getElementById(model_name);
+          var ctx = canvas.getContext("2d");
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          for (let obj of annotations_data) {
+              if (obj.kind == 'box'){
+                  ctx.beginPath();
+                  ctx.lineWidth = "2";
+                  ctx.strokeStyle = "red";
+                  ctx.rect(obj.x, obj.y, obj.width, obj.height);
+                  ctx.stroke();
+                  ctx.font = "20px Arial";
+                  labelText = obj.label + " - " + obj.confidence.toFixed(2);
+                  var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
+                  var labelY = Math.max(obj.y, 20);
+                  ctx.strokeText(labelText, labelX, labelY);
+              } else if (obj.kind == 'image'){
+                ctx.drawImage(this.img, 0, 0);
+                vm.img.src = obj.data;
+                vm.img.onload = function() {
+                    ctx.drawImage(vm.img, 0, 0);
+                }
+                canvas.style.zIndex = 1;
+              }
+          }
+        }
       }
+
     })
+
   </script>
 
 
