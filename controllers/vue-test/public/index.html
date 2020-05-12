@@ -25,8 +25,8 @@
               <h5 class="card-title" v-bind:style="{color: color_for_model(model)}">{{ model }}</h5>
             <div class="form-group">
               <div class="custom-control custom-switch">
-                <input type="checkbox" id="enabled-box" v-model="enabled_dict[model]" name="enabledSwitch">
-                <label for="enabledSwitch">Enabled</label>
+                <input type="checkbox"  class="custom-control-input" v-bind:id="model + '-enabled'" v-model="enabled_dict[model]">
+                <label class="custom-control-label" v-bind:for="model + '-enabled'">Enabled</label>
               </div>
             </div>
           </div>
