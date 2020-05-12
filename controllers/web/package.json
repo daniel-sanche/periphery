@@ -4,6 +4,8 @@
   "dependencies": {
     "express": "^4.16.2",
     "log": "*",
-    "socket.io": "^2.0.4"
+    "socket.io": "^2.0.4",
+    "vue": "^2.6.11",
+    "vue-socket.io": "^3.0.9"
   }
 }

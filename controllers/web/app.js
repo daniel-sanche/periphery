@@ -8,7 +8,7 @@ var connected_clients = {};
 app.use(express.static(__dirname + "/public"));
 
 app.get('/',function(req,res){
-  res.redirect('index.html'); //para archivos estaticos
+  res.redirect('index.html');
 });
 
 io.on('connection',function(socket){
