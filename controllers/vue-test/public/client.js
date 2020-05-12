@@ -69,9 +69,17 @@ var app = new Vue({
   },
 
   methods: {
+    color_for_model(model_name){
+      const colors = ['blue', 'red',  'yellow', 'green'];
+      var idx = this.connected_models.indexOf(model_name);
+      console.log(idx);
+      return colors[idx % colors.length];
+    },
+
     render_annotations(annotations_data,  model_name){
-      var vm = this;
-      var canvas = document.getElementById(model_name);
+      const vm = this;
+      const canvas = document.getElementById(model_name);
+      const color = this.color_for_model(model_name);
       if (canvas) {
         var ctx = canvas.getContext("2d");
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -80,7 +88,7 @@ var app = new Vue({
             if (obj.kind == 'box'){
               ctx.beginPath();
               ctx.lineWidth = "2";
-              ctx.strokeStyle = "red";
+              ctx.strokeStyle = color;
               ctx.rect(obj.x, obj.y, obj.width, obj.height);
               ctx.stroke();
               ctx.font = "20px Arial";
@@ -93,7 +101,17 @@ var app = new Vue({
               vm.img.src = obj.data;
               vm.img.onload = function() {
                 ctx.drawImage(vm.img, 0, 0);
+                ctx.beginPath();
+                ctx.lineWidth = "5";
+                ctx.strokeStyle = color;
+                ctx.rect(0, 0, vm.width, vm.height);
+                ctx.stroke();
               }
+              ctx.beginPath();
+              ctx.lineWidth = "5";
+              ctx.strokeStyle = color;
+              ctx.rect(0, 0, vm.width, vm.height);
+              ctx.stroke();
               canvas.style.zIndex = 1;
             }
           }
