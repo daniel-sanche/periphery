@@ -80,9 +80,9 @@ var app = new Vue({
         ctx.beginPath();
         ctx.lineWidth = "5";
         ctx.strokeStyle = color;
-        ctx.rect(0, 0, vm.width, vm.height);
+        ctx.rect(0, 0, this.width, this.height);
         ctx.stroke();
-    }
+    },
 
     render_annotations(annotations_data,  model_name){
       const vm = this;
@@ -104,7 +104,16 @@ var app = new Vue({
               var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
               var labelY = Math.max(obj.y, 20);
               ctx.strokeText(labelText, labelX, labelY);
-            } else if (obj.kind == 'image' || obj.kind == 'mask'){
+            } else if (obj.kind == 'image'){
+              console.log(obj.data);
+              ctx.drawImage(this.img, 0, 0);
+              vm.img.src = obj.data;
+              vm.img.onload = function() {
+                ctx.drawImage(vm.img, 0, 0);
+                vm.draw_border(ctx, color);
+              }
+              vm.draw_border(ctx, color);
+            } else if (obj.kind == 'mask'){
               console.log(obj.data);
               ctx.drawImage(this.img, 0, 0);
               vm.img.src = obj.data;
