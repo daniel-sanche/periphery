@@ -35,8 +35,9 @@ class OnnxModel():
         """
         # taken from https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/mask-rcnn
         # Resize
-        ratio = 800.0 / min(pil_image.size[0], pil_image.size[1])
-        image = pil_image.resize((int(ratio * pil_image.size[0]), int(ratio * pil_image.size[1])), Image.BILINEAR)
+        # ratio = 800.0 / min(pil_image.size[0], pil_image.size[1])
+        # image = pil_image.resize((int(ratio * pil_image.size[0]), int(ratio * pil_image.size[1])), Image.BILINEAR)
+        image = pil_image
         # Convert to BGR
         image = np.array(image)[:, :, [2, 1, 0]].astype('float32')
         # HWC -> CHW
@@ -65,8 +66,8 @@ class OnnxModel():
         """
         Reformat output into standard annotations
         """
-        ratio = 800.0 / min(orig_image.size[0], orig_image.size[1])
-        boxes = output_dict[0] / ratio
+        # ratio = 800.0 / min(orig_image.size[0], orig_image.size[1])
+        boxes = output_dict[0]
         labels = output_dict[1]
         scores = output_dict[2]
         masks = output_dict[3]
