@@ -7,7 +7,7 @@ import cv2
 
 class OnnxModel():
     def __init__(self, model_path='MaskRCNN-10.onnx',class_path='coco_classes.txt',
-            send_masks=True):
+            send_masks=True, send_boxes=False):
         self.name = model_path.split('.')[0]
         self.sess = rt.InferenceSession("MaskRCNN-10.onnx")
         self.inputs = self.sess.get_inputs()
@@ -16,6 +16,7 @@ class OnnxModel():
         self.classes = [line.rstrip('\n') for line in open('coco_classes.txt')]
 
         self.send_masks = send_masks
+        self.send_boxes = send_boxes
 
         # print input/output details
         print("inputs:")
@@ -76,14 +77,15 @@ class OnnxModel():
         for _, box, label, score, point_list in zip(masks, boxes, labels, scores, points):
             if score <= self.score_threshold:
                 continue
-            this_annotation = {'kind': 'box',
-                                'x': int(box[0]),
-                                'y': int(box[1]),
-                                'height': int(box[3]-box[1]),
-                                'width': int(box[2]-box[0]),
-                                'label': self.classes[label],
-                                'confidence':float(score)}
-            annotations.append(this_annotation)
+            if self.send_boxes:
+                this_annotation = {'kind': 'box',
+                                    'x': int(box[0]),
+                                    'y': int(box[1]),
+                                    'height': int(box[3]-box[1]),
+                                    'width': int(box[2]-box[0]),
+                                    'label': self.classes[label],
+                                    'confidence':float(score)}
+                annotations.append(this_annotation)
             if self.send_masks:
                 mask_annotation = {'kind': 'mask',
                                    'points': point_list,

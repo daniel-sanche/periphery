@@ -124,8 +124,14 @@ var app = new Vue({
                   ctx.lineTo(obj.points[i].x, obj.points[i].y);
                 }
               }
-                ctx.closePath();
-                ctx.fill();
+              ctx.closePath();
+              ctx.fill();
+              ctx.strokeStyle = color;
+              ctx.font = "20px Arial";
+              labelText = obj.label + " - " + obj.confidence.toFixed(2);
+              var labelX = Math.min(Math.max(obj.points[0].x, 0), canvas.width-ctx.measureText(labelText).width);
+              var labelY = Math.max(obj.points[0].y, 20);
+              ctx.strokeText(labelText, labelX, labelY);
             }
           }
         }
