@@ -11,7 +11,6 @@ var app = new Vue({
     height: 480,
     width: 640,
     connected_models: [],
-    latest_states: {},
     img: new Image,
     enabled_dict: {}
   },
@@ -45,7 +44,6 @@ var app = new Vue({
         vm.connected_models.push(model_name);
         vm.enabled_dict[model_name] = true;
       }
-      vm.latest_states[model_name] = result_dict;
       vm.render_annotations(result_dict.annotations, model_name);
     });
 
@@ -145,7 +143,7 @@ var app = new Vue({
               }
               vm.draw_border(ctx, color);
             } else if (obj.kind == 'mask'){
-              const MASK_SIMPLIFICATION_FACTOR = 10;
+              const MASK_SIMPLIFICATION_FACTOR = 5;
               coefficient = 1;
               if (obj_idx % 2 == 0){
                 coefficient = -1;
