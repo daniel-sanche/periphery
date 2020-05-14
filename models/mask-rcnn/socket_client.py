@@ -2,11 +2,9 @@ import socketio
 import time
 from model import OnnxModel
 from image_functions import data_url_to_pil
-import os
+import envars
 
-_inactivity_threshold = 5
 _last_activity_time = time.time()
-_autorun = True
 
 sio = socketio.Client()
 
@@ -35,7 +33,7 @@ def process_frame(data_url):
           .format(model.name, end_time - start_time))
     sio.emit('frame_complete', payload)
     # request a new frame
-    if _autorun:
+    if envars.AUTO_RUN():
         sio.emit('frame_request')
 
 
@@ -47,15 +45,14 @@ def disconnect():
 def poll_timer():
     global _last_activity_time
     while True:
-        time.sleep(1)
-        if _autorun and \
-                time.time() - _last_activity_time > _inactivity_threshold:
+        time.sleep(envars.POLL_TIME())
+        elapsed_time = time.time() - _last_activity_time
+        if envars.AUTO_RUN() and elapsed_time > envars.INACTIVITY_THRESHOLD():
             print('No activity. Querying controller again')
             sio.emit('frame_request')
 
 
 if __name__ == '__main__':
     model = OnnxModel()
-    controller_addr = os.environ.get('CONTROLLER_ADDRESS', 'localhost:8080')
-    sio.connect('http://{}'.format(controller_addr))
+    sio.connect('http://{}'.format(envars.CONTROLLER_ADDRESS()))
     poll_timer()

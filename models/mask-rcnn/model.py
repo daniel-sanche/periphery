@@ -2,21 +2,18 @@ import onnxruntime as rt
 import numpy as np
 from PIL import Image
 import math
-from image_functions import data_url_to_pil, np_img_to_data_url
 import cv2
+import envars
+
 
 class OnnxModel():
-    def __init__(self, model_path='MaskRCNN-10.onnx',class_path='coco_classes.txt',
-            send_masks=True, send_boxes=False):
+    def __init__(self, model_path='MaskRCNN-10.onnx',
+                 class_path='coco_classes.txt'):
         self.name = model_path.split('.')[0]
         self.sess = rt.InferenceSession("MaskRCNN-10.onnx")
         self.inputs = self.sess.get_inputs()
         self.outputs = self.sess.get_outputs()
-        self.score_threshold = 0.7
         self.classes = [line.rstrip('\n') for line in open('coco_classes.txt')]
-
-        self.send_masks = send_masks
-        self.send_boxes = send_boxes
 
         # print input/output details
         print("backend: {}".format(rt.get_device()))
@@ -33,10 +30,10 @@ class OnnxModel():
         """
         Reformat generic PIL image to onnx input form
         """
-        # taken from https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/mask-rcnn
         # Resize
         # ratio = 800.0 / min(pil_image.size[0], pil_image.size[1])
-        # image = pil_image.resize((int(ratio * pil_image.size[0]), int(ratio * pil_image.size[1])), Image.BILINEAR)
+        # image = pil_image.resize((int(ratio * pil_image.size[0]),
+        #       int(ratio * pil_image.size[1])), Image.BILINEAR)
         image = pil_image
         # Convert to BGR
         image = np.array(image)[:, :, [2, 1, 0]].astype('float32')
@@ -72,14 +69,15 @@ class OnnxModel():
         scores = output_dict[2]
         masks = output_dict[3]
         points = [None for _ in labels]
-        if self.send_masks:
+        if envars.OUTPUT_MASKS():
             points = self._extract_image_masks(orig_image, boxes, labels, scores, masks)
 
         annotations = []
+        confidence_threshold = envars.CONFIDENCE_THRESHOLD()
         for _, box, label, score, point_list in zip(masks, boxes, labels, scores, points):
-            if score <= self.score_threshold:
+            if score <= confidence_threshold:
                 continue
-            if self.send_boxes:
+            if envars.OUTPUT_BOXES():
                 this_annotation = {'kind': 'box',
                                     'x': int(box[0]),
                                     'y': int(box[1]),
@@ -88,7 +86,7 @@ class OnnxModel():
                                     'label': self.classes[label],
                                     'confidence':float(score)}
                 annotations.append(this_annotation)
-            if self.send_masks:
+            if envars.OUTPUT_MASKS():
                 mask_annotation = {'kind': 'mask',
                                    'points': point_list,
                                    'label': self.classes[label],
@@ -100,10 +98,11 @@ class OnnxModel():
         # taken from https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/mask-rcnn
         image = np.array(image)
         points_arr = []
+        confidence_threshold = envars.CONFIDENCE_THRESHOLD()
 
         for mask, box, label, score in zip(masks, boxes, labels, scores):
             # Showing boxes with score > 0.7
-            if score <= self.score_threshold:
+            if score <= confidence_threshold:
                 continue
 
             # Finding contour based on mask

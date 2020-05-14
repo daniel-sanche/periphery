@@ -55,6 +55,12 @@ spec:
           value: "8080"
         - name: CONTROLLER_ADDRESS
           value: "frontend-internal:8080"
+        - name: OUTPUT_BOXES
+          value: "False"
+        - name: OUTPUT_MASKS
+          value: "True"
+        - name: CONFIDENCE_THRESHOLD
+          value: "0.7"
 ---
 apiVersion: apps/v1
 kind: Deployment
