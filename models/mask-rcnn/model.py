@@ -7,7 +7,7 @@ import cv2
 
 class OnnxModel():
     def __init__(self, model_path='MaskRCNN-10.onnx',class_path='coco_classes.txt',
-            send_object_masks=False, send_combined_mask=True):
+            send_masks=True):
         self.name = model_path.split('.')[0]
         self.sess = rt.InferenceSession("MaskRCNN-10.onnx")
         self.inputs = self.sess.get_inputs()
@@ -15,8 +15,7 @@ class OnnxModel():
         self.score_threshold = 0.7
         self.classes = [line.rstrip('\n') for line in open('coco_classes.txt')]
 
-        self.send_object_masks = send_object_masks
-        self.send_combined_mask = send_combined_mask
+        self.send_masks = send_masks
 
         # print input/output details
         print("inputs:")
@@ -69,13 +68,12 @@ class OnnxModel():
         labels = output_dict[1]
         scores = output_dict[2]
         masks = output_dict[3]
-        image_masks = [None for _ in labels]
-        if self.send_object_masks or self.send_combined_mask:
-            image_masks, combined_mask = self._extract_image_masks(
-                    orig_image, boxes, labels, scores, masks)
+        points = [None for _ in labels]
+        if self.send_masks:
+            points = self._extract_image_masks(orig_image, boxes, labels, scores, masks)
 
         annotations = []
-        for _, box, label, score, mask in zip(masks, boxes, labels, scores, image_masks):
+        for _, box, label, score, point_list in zip(masks, boxes, labels, scores, points):
             if score <= self.score_threshold:
                 continue
             this_annotation = {'kind': 'box',
@@ -86,26 +84,18 @@ class OnnxModel():
                                 'label': self.classes[label],
                                 'confidence':float(score)}
             annotations.append(this_annotation)
-            if self.send_object_masks:
+            if self.send_masks:
                 mask_annotation = {'kind': 'mask',
-                                   'data': np_img_to_data_url(mask*255, mode='L'),
+                                   'points': point_list,
                                    'label': self.classes[label],
                                    'confidence':float(score)}
                 annotations.append(mask_annotation)
-        if self.send_combined_mask:
-            combined_mask_annotation = {'kind': 'mask',
-                                        'data': np_img_to_data_url(combined_mask*255, mode='L'),
-                                        'label': 'combined',
-                                        'confidence':float(np.min(scores))}
-            annotations.append(combined_mask_annotation)
-
         return {'name': self.name, 'annotations': annotations}
 
     def _extract_image_masks(self, image, boxes, labels, scores, masks):
         # taken from https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/mask-rcnn
         image = np.array(image)
-        im_mask_arr = []
-        combined_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+        points_arr = []
 
         for mask, box, label, score in zip(masks, boxes, labels, scores):
             # Showing boxes with score > 0.7
@@ -129,9 +119,14 @@ class OnnxModel():
             im_mask[y_0:y_1, x_0:x_1] = mask[
                 mask_y_0 : mask_y_1, mask_x_0 : mask_x_1
             ]
-            combined_mask = np.maximum(combined_mask, im_mask)
-            im_mask_arr.append(im_mask)
-        return im_mask_arr, combined_mask
+            im_mask = im_mask[:, :, None]
+            # OpenCV version 4.x
+            contours, hierarchy = cv2.findContours(
+                im_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+            )
+            contour_list =[{'x':int(a[0]), 'y':int(a[1])} for a in list(np.squeeze(contours[0]))]
+            points_arr.append(contour_list)
+        return points_arr
 
 
 if __name__ == '__main__':

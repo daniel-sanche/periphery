@@ -114,14 +114,18 @@ var app = new Vue({
               }
               vm.draw_border(ctx, color);
             } else if (obj.kind == 'mask'){
-              console.log(obj.data);
-              ctx.drawImage(this.img, 0, 0);
-              vm.img.src = obj.data;
-              vm.img.onload = function() {
-                ctx.drawImage(vm.img, 0, 0);
-                vm.draw_border(ctx, color);
+              ctx.beginPath();
+              ctx.fillStyle = "rgba(0, 0, 255, 0.25)";
+              ctx.strokeStyle = color;
+              for (var i=0; i<obj.points.length; i++){
+                if (i == 0){
+                  ctx.moveTo(obj.points[i].x, obj.points[i].y);
+                } else {
+                  ctx.lineTo(obj.points[i].x, obj.points[i].y);
+                }
               }
-              vm.draw_border(ctx, color);
+                ctx.closePath();
+                ctx.fill();
             }
           }
         }

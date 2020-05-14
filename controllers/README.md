@@ -30,7 +30,9 @@ annotations:
     data: "hello"
     confidence: 1.0
   - kind: mask
-    data: <b64 encoded image>
+    points:
+      - x: 10
+      - y: 10
     confidence: 1.0
     label: person
 process_time: 10
