@@ -71,7 +71,8 @@ var app = new Vue({
 
   methods: {
     color_for_model(model_name){
-      const colors = ['blue', 'red',  'yellow', 'green'];
+      // blue red orange green
+      const colors = ['#0328fc', '#fc0317',  '#fca903', '#5afc03'];
       var idx = this.connected_models.indexOf(model_name);
       return colors[idx % colors.length];
     },
@@ -115,7 +116,8 @@ var app = new Vue({
               vm.draw_border(ctx, color);
             } else if (obj.kind == 'mask'){
               ctx.beginPath();
-              ctx.fillStyle = "rgba(0, 0, 255, 0.25)";
+              // add ~25% alpha channel
+              ctx.fillStyle = color + "40";
               ctx.strokeStyle = color;
               for (var i=0; i<obj.points.length; i++){
                 if (i == 0){
@@ -127,6 +129,7 @@ var app = new Vue({
               ctx.closePath();
               ctx.fill();
               ctx.strokeStyle = color;
+              ctx.fillStyle = color;
               ctx.font = "20px Arial";
               labelText = obj.label + " - " + obj.confidence.toFixed(2);
               var labelX = Math.min(Math.max(obj.points[0].x, 0), canvas.width-ctx.measureText(labelText).width);
