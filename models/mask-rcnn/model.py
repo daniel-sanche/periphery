@@ -122,9 +122,9 @@ class OnnxModel():
             x_1 = min(int_box[2] + 1, image.shape[1])
             y_0 = max(int_box[1], 0)
             y_1 = min(int_box[3] + 1, image.shape[0])
-            mask_y_0 = max(y_0 - box[1], 0)
+            mask_y_0 = max(y_0 - int_box[1], 0)
             mask_y_1 = mask_y_0 + y_1 - y_0
-            mask_x_0 = max(x_0 - box[0], 0)
+            mask_x_0 = max(x_0 - int_box[0], 0)
             mask_x_1 = mask_x_0 + x_1 - x_0
             im_mask[y_0:y_1, x_0:x_1] = mask[
                 mask_y_0 : mask_y_1, mask_x_0 : mask_x_1
