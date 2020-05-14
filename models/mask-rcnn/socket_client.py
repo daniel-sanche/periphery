@@ -2,6 +2,7 @@ import socketio
 import time
 from model import OnnxModel
 from image_functions import data_url_to_pil
+import os
 
 _inactivity_threshold = 5
 _last_activity_time = time.time()
@@ -55,5 +56,6 @@ def poll_timer():
 
 if __name__ == '__main__':
     model = OnnxModel()
-    sio.connect('http://localhost:8080')
+    controller_addr = os.environ.get('CONTROLLER_ADDRESS', 'localhost:8080')
+    sio.connect('http://{}'.format(controller_addr))
     poll_timer()
