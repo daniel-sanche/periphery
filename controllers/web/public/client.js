@@ -141,6 +141,7 @@ var app = new Vue({
               }
               vm.draw_border(ctx, color);
             } else if (obj.kind == 'mask'){
+              const MASK_SIMPLIFICATION_FACTOR = 10;
               coefficient = 1;
               if (obj_idx % 2 == 0){
                 coefficient = -1;
@@ -150,7 +151,7 @@ var app = new Vue({
               mask_color = vm.color_shift(coefficient * 0.25 * obj_idx, color + alpha);
               ctx.beginPath();
               ctx.fillStyle = mask_color;
-              for (var i=0; i<obj.points.length; i++){
+              for (var i=0; i<obj.points.length; i=i+MASK_SIMPLIFICATION_FACTOR){
                 if (i == 0){
                   ctx.moveTo(obj.points[i].x, obj.points[i].y);
                 } else {
