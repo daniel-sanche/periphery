@@ -19,6 +19,7 @@ class OnnxModel():
         self.send_boxes = send_boxes
 
         # print input/output details
+        print("backend: {}".format(rt.get_device()))
         print("inputs:")
         for i, input in enumerate(self.inputs):
             print("{} - {}: {} - {}".format(
