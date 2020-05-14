@@ -35,6 +35,7 @@ var app = new Vue({
     });
 
     socket.on('render_update', function(result_dict){
+      console.log(result_dict)
       model_name = result_dict.name;
       if (!(vm.connected_models.includes(model_name))){
         vm.connected_models.push(model_name);
@@ -72,9 +73,16 @@ var app = new Vue({
     color_for_model(model_name){
       const colors = ['blue', 'red',  'yellow', 'green'];
       var idx = this.connected_models.indexOf(model_name);
-      console.log(idx);
       return colors[idx % colors.length];
     },
+
+    draw_border(ctx, color){
+        ctx.beginPath();
+        ctx.lineWidth = "5";
+        ctx.strokeStyle = color;
+        ctx.rect(0, 0, vm.width, vm.height);
+        ctx.stroke();
+    }
 
     render_annotations(annotations_data,  model_name){
       const vm = this;
@@ -96,23 +104,15 @@ var app = new Vue({
               var labelX = Math.min(Math.max(obj.x, 0), canvas.width-ctx.measureText(labelText).width);
               var labelY = Math.max(obj.y, 20);
               ctx.strokeText(labelText, labelX, labelY);
-            } else if (obj.kind == 'image'){
+            } else if (obj.kind == 'image' || obj.kind == 'mask'){
+              console.log(obj.data);
               ctx.drawImage(this.img, 0, 0);
               vm.img.src = obj.data;
               vm.img.onload = function() {
                 ctx.drawImage(vm.img, 0, 0);
-                ctx.beginPath();
-                ctx.lineWidth = "5";
-                ctx.strokeStyle = color;
-                ctx.rect(0, 0, vm.width, vm.height);
-                ctx.stroke();
+                vm.draw_border(ctx, color);
               }
-              ctx.beginPath();
-              ctx.lineWidth = "5";
-              ctx.strokeStyle = color;
-              ctx.rect(0, 0, vm.width, vm.height);
-              ctx.stroke();
-              canvas.style.zIndex = 1;
+              vm.draw_border(ctx, color);
             }
           }
         }

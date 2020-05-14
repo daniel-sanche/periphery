@@ -26,8 +26,13 @@ annotations:
     confidence: 1.0
   - kind: image
     data: <b64 encoded image>
-  - kind: string
+  - kind: text
     data: "hello"
+    confidence: 1.0
+  - kind: mask
+    data: <b64 encoded image>
+    confidence: 1.0
+    label: person
 process_time: 10
 ```
 
