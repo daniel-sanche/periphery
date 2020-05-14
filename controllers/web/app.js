@@ -32,7 +32,8 @@ io.on('connection',function(socket){
   });
 
   socket.on('frame_request',function(){
-    socket.to('client').emit('webcam_request', socket.id);
+    model_name = connected_clients[socket.id];
+    socket.to('client').emit('webcam_request', socket.id, model_name);
   });
 
   socket.on('webcam_response',function(requester_id, image_data){

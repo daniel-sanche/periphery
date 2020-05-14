@@ -25,7 +25,11 @@ var app = new Vue({
     render_context.width = this.width;
     render_context.height = this.height;
 
-    socket.on('webcam_request', function(requester_id){
+    socket.on('webcam_request', function(requester_id, model_name){
+      if (vm.enabled_dict[model_name] == false) {
+          console.log(model_name + " disabled");
+          return;
+      }
       if (video.srcObject){
         render_context.drawImage(video, 0,0,render_context.width, render_context.height);
         socket.emit('webcam_response', requester_id, render_canvas.toDataURL('image/webp'));
