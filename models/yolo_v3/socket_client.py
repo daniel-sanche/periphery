@@ -5,6 +5,7 @@ import io
 import numpy as np
 import time
 from model import YOLO
+import os
 
 _model_name = 'yolo_v3'
 _inactivity_threshold = 5
@@ -68,5 +69,6 @@ def poll_timer():
 
 if __name__ == '__main__':
     yolo = YOLO()
-    sio.connect('http://localhost:8080')
+    controller_addr = os.environ.get('CONTROLLER_ADDRESS', 'localhost:8080')
+    sio.connect('http://{}'.format(controller_addr))
     poll_timer()

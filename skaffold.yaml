@@ -20,6 +20,8 @@ build:
     context: controllers/web
   - image: mask-crnn
     context: models/mask-rcnn
+  - image: yolov3
+    context: models/yolo_v3
   tagPolicy:
     gitCommit: {}
 deploy:
