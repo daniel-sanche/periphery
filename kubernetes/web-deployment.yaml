@@ -89,6 +89,31 @@ spec:
         - name: PYTHONUNBUFFERED
           value: "True"
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mirror
+spec:
+  selector:
+    matchLabels:
+      app: mirror
+  template:
+    metadata:
+      labels:
+        app: mirror
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: mirror
+        image: mirror
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
+        - name: PYTHONUNBUFFERED
+          value: "True"
+---
 apiVersion: v1
 kind: Service
 metadata:

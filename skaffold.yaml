@@ -22,6 +22,8 @@ build:
     context: models/mask-rcnn
   - image: yolov3
     context: models/yolo_v3
+  - image: mirror
+    context: models/mirror
   tagPolicy:
     gitCommit: {}
 deploy:

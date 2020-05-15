@@ -4,11 +4,10 @@ from PIL import Image
 import io
 import numpy as np
 import time
+import envars
 
 _model_name = 'mirror'
-_inactivity_threshold = 5
 _last_activity_time = time.time()
-_autorun = True
 
 sio = socketio.Client()
 
@@ -40,7 +39,7 @@ def process_frame(data_url):
                'clock_time': end_time - start_time}
     sio.emit('frame_complete', payload)
     # request a new frame
-    if _autorun:
+    if envars.AUTO_RUN():
         sio.emit('frame_request')
 
 
@@ -70,13 +69,12 @@ def _encode_img(img):
 def poll_timer():
     global _last_activity_time
     while True:
-        time.sleep(1)
-        if _autorun and \
-                time.time() - _last_activity_time > _inactivity_threshold:
+        time.sleep(envars.POLL_TIME())
+        elapsed_time = time.time() - _last_activity_time
+        if envars.AUTO_RUN() and elapsed_time > envars.INACTIVITY_THRESHOLD():
             print('No activity. Querying controller again')
             sio.emit('frame_request')
 
-
 if __name__ == '__main__':
-    sio.connect('http://localhost:8080')
+    sio.connect('http://{}'.format(envars.CONTROLLER_ADDRESS()))
     poll_timer()
