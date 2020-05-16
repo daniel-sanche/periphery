@@ -4,7 +4,7 @@ build:
   artifacts:
   - image: frontend
     context: controllers/web
-  - image: mask-crnn
+  - image: mask-rcnn
     context: models/mask-rcnn
   - image: yolov3
     context: models/yolo_v3
