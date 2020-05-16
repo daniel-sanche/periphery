@@ -16,3 +16,18 @@ deploy:
   kubectl:
     manifests:
     - ./kubernetes/web-deployment.yaml
+profiles:
+- name: gpu
+  build:
+    artifacts:
+    - image: frontend
+      context: controllers/web
+    - image: mask-rcnn-gpu
+      context: models/mask-rcnn
+      docker:
+        dockerfile: Dockerfile.gpu
+  deploy:
+    kubectl:
+      manifests:
+      - ./kubernetes/web-deployment-gpu.yaml
+
