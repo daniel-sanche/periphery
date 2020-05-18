@@ -94,32 +94,34 @@ class Model():
 
         annotations = []
         for pose_idx, pose in enumerate(current_poses):
-            point_arr = []
-            found_points = set([])
             person_label = 'person_{}'.format(pose_idx)
-            for idx in range(pose.keypoints.shape[0]):
-                x = int(pose.keypoints[idx, 0])
-                y = int(pose.keypoints[idx, 1])
-                label = self.kpt_names[idx]
-                if x >= 0 and y >= 0:
-                    point_arr.append({'x': x, 'y':y, 'label':label})
-                    found_points.add(label)
-            links = [{'from': x[0], 'to': x[1]}
-                     for x in self.connections
-                     if x[0] in found_points and x[1] in found_points]
-            annotations.append({'kind':'lines',
-                                'label': person_label,
-                                'confidence': pose.confidence,
-                                'points': point_arr,
-                                'links':links})
-            bbox_annotation = {'kind':'box',
-                               'x':pose.bbox[0],
-                               'y':pose.bbox[1],
-                               'height':pose.bbox[3],
-                               'width':pose.bbox[2],
-                               'label':person_label,
-                               'confidence':pose.confidence}
-            # annotations.append(bbox_annotation)
+            if envars.OUTPUT_POSES():
+                point_arr = []
+                found_points = set([])
+                for idx in range(pose.keypoints.shape[0]):
+                    x = int(pose.keypoints[idx, 0])
+                    y = int(pose.keypoints[idx, 1])
+                    label = self.kpt_names[idx]
+                    if x >= 0 and y >= 0:
+                        point_arr.append({'x': x, 'y':y, 'label':label})
+                        found_points.add(label)
+                links = [{'from': x[0], 'to': x[1]}
+                         for x in self.connections
+                         if x[0] in found_points and x[1] in found_points]
+                annotations.append({'kind':'lines',
+                                    'label': person_label,
+                                    'confidence': pose.confidence,
+                                    'points': point_arr,
+                                    'links':links})
+            if envars.OUTPUT_BOXES():
+                bbox_annotation = {'kind':'box',
+                                   'x':pose.bbox[0],
+                                   'y':pose.bbox[1],
+                                   'height':pose.bbox[3],
+                                   'width':pose.bbox[2],
+                                   'label':person_label,
+                                   'confidence':pose.confidence}
+                annotations.append(bbox_annotation)
 
 
         return {'name': self.name, 'annotations': annotations}
