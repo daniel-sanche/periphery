@@ -13,7 +13,8 @@ class OnnxModel():
         self.inputs = self.sess.get_inputs()
         self.outputs = self.sess.get_outputs()
 
-        self.threshold = 25
+        self.threshold = 20
+        self.box_scaler = 1.25
 
         # print input/output details
         print("backend: {}".format(rt.get_device()))
@@ -36,19 +37,26 @@ class OnnxModel():
         face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         faces, confidence = face_cascade.detectMultiScale2(gray, 1.1, 4)
-        faces = [faces[i] for i in range(len(faces)) if confidence[i] > self.threshold]
-        confidence = [confidence[i] for i in range(len(faces)) if confidence[i] > self.threshold]
 
         cropped_list = []
         img = img.astype(np.float32)
+        faces_kept = []
+        confidence_kept = []
         for i, (x, y, w, h) in enumerate(faces):
-            crop_img = img[y:y+h, x:x+w, :]
-            crop_img = cv2.resize(crop_img, (112, 112))
-            crop_img = np.transpose(crop_img, [2, 0, 1])
-            crop_img = np.expand_dims(crop_img, axis=0)
-            cropped_list.append(crop_img)
+            c = confidence[i]
+            print(c)
+            if c >= self.threshold:
+                h_p = int(h * self.box_scaler)
+                w_p = int(w * self.box_scaler)
+                crop_img = img[y:y+h_p, x:x+w_p,:]
+                crop_img = cv2.resize(crop_img, (112, 112))
+                crop_img = np.transpose(crop_img, [2, 0, 1])
+                crop_img = np.expand_dims(crop_img, axis=0)
+                cropped_list.append(crop_img)
+                faces_kept.append((int(x), int(y), w_p, h_p))
+                confidence_kept.append(float(c))
         # return in onnx tensor format
-        return {'images': cropped_list, 'boxes': faces, 'confidence':confidence}
+        return {'images': cropped_list, 'boxes': faces_kept, 'confidence':confidence_kept}
 
     def run(self, input_dict):
         """
@@ -75,11 +83,11 @@ class OnnxModel():
         for i in range(num_faces):
             (x, y, w, h) = boxes[i]
             vector = np.squeeze(vectors[i])
-            confidence = np.squeeze(confidences[i])
+            confidence = confidences[i]
             print(confidence)
             annotations.append(
-                {'kind': 'box', 'x': int(x), 'y': int(y), 'width': int(w), 'height': int(h),
-                'label': 'face', 'confidence': float(confidence)})
+                {'kind': 'box', 'x': x, 'y': y, 'width': w, 'height': h,
+                'label': 'face', 'confidence': confidence})
 
         return {'name': self.name, 'annotations': annotations}
 
