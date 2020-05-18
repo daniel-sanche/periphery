@@ -40,7 +40,7 @@ def USE_GPU():
     Determines whether to use GPU for inference instead of CPU
     """
     var_name = inspect.stack()[0][3]
-    return environ.get(var_name, 'False') == 'True'
+    return environ.get(var_name, 'False') != 'False'
 
 def OUTPUT_BOXES():
     """
