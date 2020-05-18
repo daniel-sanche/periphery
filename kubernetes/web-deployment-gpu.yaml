@@ -70,6 +70,9 @@ spec:
       containers:
       - name: openpose-gpu
         image: openpose-gpu
+        resources:
+          limits:
+           nvidia.com/gpu: 1
         env:
         - name: PORT
           value: "8080"

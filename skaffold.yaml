@@ -10,6 +10,8 @@ build:
     context: models/yolo_v3
   - image: mirror
     context: models/mirror
+  - image: openpose
+    context: models/openpose
   tagPolicy:
     gitCommit: {}
 deploy:
@@ -26,8 +28,11 @@ profiles:
       context: models/mask-rcnn
       docker:
         dockerfile: Dockerfile.gpu
+    - image: openpose-gpu
+      context: models/openpose
+      docker:
+        dockerfile: Dockerfile.gpu
   deploy:
     kubectl:
       manifests:
       - ./kubernetes/web-deployment-gpu.yaml
-
