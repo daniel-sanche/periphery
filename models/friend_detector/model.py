@@ -107,12 +107,25 @@ class OnnxModel():
             (x, y, w, h) = boxes[i]
             vector = np.squeeze(vectors[i])
             confidence = confidences[i]
-            print(confidence)
+            label = self.find_closest(vector)
+            # print(confidence)
             annotations.append(
                 {'kind': 'box', 'x': x, 'y': y, 'width': w, 'height': h,
                 'label': 'face', 'confidence': confidence})
 
         return {'name': self.name, 'annotations': annotations}
+
+    def find_closest(self, vector):
+        repeated = np.repeat(vector[np.newaxis, :], 4, axis=0)
+        difference = repeated - self.X
+        distances = np.linalg.norm(difference, axis=1)
+        idx = np.argmax(distances)
+        score = np.amax(distances)
+        # label = self.labels[idx]
+        print(distances)
+        print(idx)
+        print(score)
+        # print(label)
 
 if __name__ == '__main__':
     imarray = np.random.rand(1920, 1080, 3) * 255
