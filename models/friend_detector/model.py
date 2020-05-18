@@ -121,11 +121,11 @@ class OnnxModel():
         distances = np.linalg.norm(difference, axis=1)
         idx = np.argmax(distances)
         score = np.amax(distances)
-        # label = self.labels[idx]
+        label = self.labels[self.y[idx]]
         print(distances)
         print(idx)
         print(score)
-        # print(label)
+        print(label)
 
 if __name__ == '__main__':
     imarray = np.random.rand(1920, 1080, 3) * 255
