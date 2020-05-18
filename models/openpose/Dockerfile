@@ -1,5 +1,7 @@
 From python:3.6
 
+RUN wget https://download.01.org/opencv/openvino_training_extensions/models/human_pose_estimation/checkpoint_iter_370000.pth
+
 RUN pip install --upgrade cython
 RUN pip install numpy>=1.14.0
 RUN pip install torch==0.4.1
