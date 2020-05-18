@@ -13,6 +13,8 @@ class OnnxModel():
         self.inputs = self.sess.get_inputs()
         self.outputs = self.sess.get_outputs()
 
+        self.threshold = 25
+
         # print input/output details
         print("backend: {}".format(rt.get_device()))
         print("inputs:")
@@ -33,7 +35,9 @@ class OnnxModel():
         # extract faces
         face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+        faces, confidence = face_cascade.detectMultiScale2(gray, 1.1, 4)
+        faces = [faces[i] for i in range(len(faces)) if confidence[i] > self.threshold]
+        confidence = [confidence[i] for i in range(len(faces)) if confidence[i] > self.threshold]
 
         cropped_list = []
         img = img.astype(np.float32)
@@ -44,7 +48,7 @@ class OnnxModel():
             crop_img = np.expand_dims(crop_img, axis=0)
             cropped_list.append(crop_img)
         # return in onnx tensor format
-        return {'images': cropped_list, 'boxes': faces}
+        return {'images': cropped_list, 'boxes': faces, 'confidence':confidence}
 
     def run(self, input_dict):
         """
@@ -54,7 +58,9 @@ class OnnxModel():
         vector_list = []
         for img in image_list:
             vector_list.append(self.sess.run(None, {'data':img})[0])
-        return {'boxes': input_dict.get('boxes'), 'vectors': vector_list}
+        return {'boxes': input_dict.get('boxes'),
+                'confidence': input_dict.get('confidence'),
+                'vectors': vector_list}
 
     def postprocess(self, orig_image, output_dict):
         """
@@ -62,15 +68,18 @@ class OnnxModel():
         """
         boxes = output_dict['boxes']
         vectors = output_dict['vectors']
+        confidences = output_dict['confidence']
         num_faces = len(boxes)
 
         annotations = []
         for i in range(num_faces):
             (x, y, w, h) = boxes[i]
             vector = np.squeeze(vectors[i])
+            confidence = np.squeeze(confidences[i])
+            print(confidence)
             annotations.append(
                 {'kind': 'box', 'x': int(x), 'y': int(y), 'width': int(w), 'height': int(h),
-                'label': 'face', 'confidence': 1.0})
+                'label': 'face', 'confidence': float(confidence)})
 
         return {'name': self.name, 'annotations': annotations}
 
