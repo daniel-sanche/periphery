@@ -18,7 +18,7 @@ class OnnxModel():
         self.box_scaler = 1.25
 
         # train on dataset
-        num_images = 4
+        num_images = 5
         self.labels = [name for name in os.listdir(dataset_path)]
         vector_mat = np.zeros((num_images, 512), dtype=np.float32)
         labels_mat = np.zeros((num_images), dtype=np.uint8)
@@ -31,6 +31,7 @@ class OnnxModel():
                 img = Image.open(image_path)
                 input_dict = self.preprocess(img)
                 vector_list = self.run(input_dict)['vectors']
+                assert len(vector_list) == 1
                 vector_mat[idx, :] = vector_list[0]
                 labels_mat[idx] = label
                 idx += 1
@@ -111,21 +112,22 @@ class OnnxModel():
             # print(confidence)
             annotations.append(
                 {'kind': 'box', 'x': x, 'y': y, 'width': w, 'height': h,
-                'label': 'face', 'confidence': confidence})
+                'label': label, 'confidence': confidence})
 
         return {'name': self.name, 'annotations': annotations}
 
     def find_closest(self, vector):
-        repeated = np.repeat(vector[np.newaxis, :], 4, axis=0)
+        repeated = np.repeat(vector[np.newaxis, :], self.X.shape[0], axis=0)
         difference = repeated - self.X
         distances = np.linalg.norm(difference, axis=1)
-        idx = np.argmax(distances)
-        score = np.amax(distances)
+        idx = np.argmin(distances)
+        score = np.amin(distances)
         label = self.labels[self.y[idx]]
         print(distances)
         print(idx)
         print(score)
         print(label)
+        return label
 
 if __name__ == '__main__':
     imarray = np.random.rand(1920, 1080, 3) * 255
