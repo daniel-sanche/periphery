@@ -53,6 +53,33 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: openpose
+spec:
+  selector:
+    matchLabels:
+      app: openpose
+  template:
+    metadata:
+      labels:
+        app: openpose
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: openpose
+        image: openpose
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
+        - name: OUTPUT_BOXES
+          value: "False"
+        - name: OUTPUT_POSES
+          value: "True"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: yolov3
 spec:
   selector:
