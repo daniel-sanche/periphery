@@ -4,10 +4,11 @@ from PIL import Image
 import math
 import cv2
 import envars
-
+import os
+from sklearn import preprocessing
 
 class OnnxModel():
-    def __init__(self, model_path='updated_arcface.onnx'):
+    def __init__(self, model_path='updated_arcface.onnx', dataset_path='dataset'):
         self.name = 'FriendDetector'
         self.sess = rt.InferenceSession(model_path)
         self.inputs = self.sess.get_inputs()
@@ -15,6 +16,27 @@ class OnnxModel():
 
         self.threshold = 20
         self.box_scaler = 1.25
+
+        # train on dataset
+        num_images = 4
+        self.labels = [name for name in os.listdir(dataset_path)]
+        vector_mat = np.zeros((num_images, 512), dtype=np.float32)
+        labels_mat = np.zeros((num_images), dtype=np.uint8)
+        idx = 0
+        for label, friend_name in enumerate(self.labels):
+            friend_path = os.path.join(dataset_path, friend_name)
+            for image_name in os.listdir(friend_path):
+                image_path = os.path.join(friend_path, image_name)
+                print(image_path)
+                img = Image.open(image_path)
+                input_dict = self.preprocess(img)
+                vector_list = self.run(input_dict)['vectors']
+                vector_mat[idx, :] = vector_list[0]
+                labels_mat[idx] = label
+                idx += 1
+        print(vector_mat)
+        self.X = vector_mat
+        self.y = labels_mat
 
         # print input/output details
         print("backend: {}".format(rt.get_device()))
@@ -65,7 +87,8 @@ class OnnxModel():
         image_list = input_dict.get('images')
         vector_list = []
         for img in image_list:
-            vector_list.append(self.sess.run(None, {'data':img})[0])
+            unnormalized = self.sess.run(None, {'data':img})[0]
+            vector_list.append(preprocessing.normalize(unnormalized).flatten())
         return {'boxes': input_dict.get('boxes'),
                 'confidence': input_dict.get('confidence'),
                 'vectors': vector_list}
