@@ -14,15 +14,14 @@ from image_functions import np_img_to_data_url
 
 
 class Model():
-    def __init__(self, cpu=True, remember_previous=True):
+    def __init__(self):
         self.name = 'OpenPose'
         net = PoseEstimationWithMobileNet()
         checkpoint = torch.load('./checkpoint_iter_370000.pth', map_location='cpu')
         load_state(net, checkpoint)
         self.net = net.eval()
-        if not cpu:
+        if envars.USE_GPU():
             self.net = self.net.cuda()
-        self.cpu = cpu
         self.stride = 8
         self.upsample_ratio = 4
         self.height_size = 256
@@ -59,7 +58,7 @@ class Model():
         Run one prediction
         """
         heatmaps, pafs, scale, pad = infer_fast(self.net, img,
-                self.height_size, self.stride, self.upsample_ratio, self.cpu)
+                self.height_size, self.stride, self.upsample_ratio)
         return {'heatmaps':heatmaps, 'pafs':pafs, 'scale':scale, 'pad':pad}
 
     def postprocess(self, orig_image, output_dict):
@@ -127,7 +126,7 @@ class Model():
         return {'name': self.name, 'annotations': annotations}
 
 
-def infer_fast(net, img, net_input_height_size, stride, upsample_ratio, cpu,
+def infer_fast(net, img, net_input_height_size, stride, upsample_ratio,
                pad_value=(0, 0, 0), img_mean=(128, 128, 128), img_scale=1/256):
     height, width, _ = img.shape
     scale = net_input_height_size / height
@@ -138,7 +137,7 @@ def infer_fast(net, img, net_input_height_size, stride, upsample_ratio, cpu,
     padded_img, pad = pad_width(scaled_img, stride, pad_value, min_dims)
 
     tensor_img = torch.from_numpy(padded_img).permute(2, 0, 1).unsqueeze(0).float()
-    if not cpu:
+    if envars.USE_GPU():
         tensor_img = tensor_img.cuda()
 
     stages_output = net(tensor_img)

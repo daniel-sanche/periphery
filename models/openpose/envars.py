@@ -33,8 +33,14 @@ def AUTO_RUN():
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, 'True') == 'True'
 
-
 #############################################
+
+def USE_GPU():
+    """
+    Determines whether to use GPU for inference instead of CPU
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'False') == 'True'
 
 def OUTPUT_BOXES():
     """
