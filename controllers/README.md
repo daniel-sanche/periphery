@@ -32,9 +32,24 @@ annotations:
   - kind: mask
     points:
       - x: 10
-      - y: 10
+        y: 10
     confidence: 1.0
     label: person
+  - kind: lines
+    points:
+      - label: head
+        x: 10
+        y: 20
+    links:
+      - from: head
+        to: neck
+    confidence: 1.0
+  - kind: points
+    points:
+      - name: head
+        x: 10
+        y: 20
+        confidence: 0.7
 process_time: 10
 ```
 

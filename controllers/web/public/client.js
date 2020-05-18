@@ -142,6 +142,25 @@ var app = new Vue({
                 vm.draw_border(ctx, color);
               }
               vm.draw_border(ctx, color);
+            } else if (obj.kind == 'lines'){
+              ctx.fillStyle = color;
+              labelDict = {};
+              for (var i=0; i<obj.points.length; i=i+1){
+                const point = obj.points[i];
+                ctx.fillRect(point.x, point.y, 5, 5);
+                labelDict[point.label] = {'x':point.x, 'y':point.y};
+              }
+              ctx.strokeStyle = color;
+              ctx.lineWidth = "2";
+              ctx.beginPath();
+              for (var i=0; i<obj.links.length; i=i+1){
+                const start = labelDict[obj.links[i].from];
+                const end = labelDict[obj.links[i].to];
+                ctx.moveTo(start.x, start.y);
+                ctx.lineTo(end.x, end.y);
+              }
+              ctx.stroke();
+              ctx.closePath();
             } else if (obj.kind == 'mask'){
               const MASK_SIMPLIFICATION_FACTOR = 5;
               coefficient = 1;
