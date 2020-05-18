@@ -1,15 +1,19 @@
-FROM python:3.7 as builder
+From python:3.6
 
-FROM mcr.microsoft.com/azureml/onnxruntime:v1.2.0
-
-COPY requirements.txt /code
-RUN pip install -r requirements.txt
+RUN pip install --upgrade cython
+RUN pip install numpy>=1.14.0
+RUN pip install torch==0.4.1
+RUN pip install torchvision>=0.2.1
+RUN pip install pycocotools==2.0.0
+RUN pip install opencv-python>=3.4.0.14
+RUN pip install matplotlib
+RUN pip install python-socketio[client]
+RUN pip install pillow
 
 # opencv
 RUN apt-get update
 RUN apt-get install -y libglib2.0-0 libsm6 libxrender-dev
 
-COPY human-pose-estimation.onnx /code
+COPY . .
 
-COPY *.py /code/
 ENTRYPOINT python socket_client.py

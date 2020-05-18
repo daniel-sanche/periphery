@@ -35,3 +35,26 @@ def AUTO_RUN():
 
 
 #############################################
+
+def CONFIDENCE_THRESHOLD():
+    """
+    Ignore matches with less than this score
+    """
+    var_name = inspect.stack()[0][3]
+    return float(environ.get(var_name, 0.6))
+
+
+def OUTPUT_BOXES():
+    """
+    Include bounding boxes in output
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'False') == 'True'
+
+
+def OUTPUT_MASKS():
+    """
+    Include sementic masks in output
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'True') == 'True'

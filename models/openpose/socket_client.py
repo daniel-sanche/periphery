@@ -1,6 +1,6 @@
 import socketio
 import time
-from model import OnnxModel
+from model import Model
 from image_functions import data_url_to_pil
 import envars
 
@@ -53,6 +53,6 @@ def poll_timer():
 
 
 if __name__ == '__main__':
-    model = OnnxModel()
+    model = Model()
     sio.connect('http://{}'.format(envars.CONTROLLER_ADDRESS()))
     poll_timer()
