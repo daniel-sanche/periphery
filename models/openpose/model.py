@@ -4,7 +4,8 @@ from PIL import Image
 import envars
 from keypoints import extract_keypoints, group_keypoints
 from pose import Pose, track_poses
-
+from image_functions import np_img_to_data_url
+import cv2
 
 class OnnxModel():
     def __init__(self, model_path='human-pose-estimation.onnx'):
@@ -35,7 +36,7 @@ class OnnxModel():
                                  int(orig_height*scale)), Image.BILINEAR)
         print(image.size)
         # Convert to BGR
-        image = np.array(image)[:, :, [2, 1, 0]].astype('float32')
+        image = np.array(image)[:, :, [2, 1, 0]].astype('float')
         # HWC -> CHW
         image = np.transpose(image, [2, 0, 1])
         # Pad width dimension
@@ -62,15 +63,25 @@ class OnnxModel():
         """
         Reformat output into standard annotations
         """
-        stride = 8
-        upsample_ratio = 4
-        num_keypoints = Pose.num_kpts
-        previous_poses = []
-        heatmaps = np.squeeze(output_dict[2])
-        pafs = np.squeeze(output_dict[3])
+        # prep image
         orig_width, orig_height = orig_image.size
         scale = 256 / orig_height
-        pad = [115, 0] # fix me
+        image = orig_image.resize((int(orig_width*scale),
+                                 int(orig_height*scale)), Image.BILINEAR)
+        image = np.array(image)
+        padded_image = np.zeros((256, 456, 3), dtype=np.int8)
+        padded_image[:image.shape[0], :image.shape[1], :] = image
+        img = padded_image
+
+
+        num_keypoints = Pose.num_kpts
+        previous_poses = []
+        heatmaps = np.transpose(np.squeeze(output_dict[2]), (1,2,0))
+        print(heatmaps.shape)
+        pafs = np.transpose(np.squeeze(output_dict[3]), (1,2,0))
+        orig_width, orig_height = orig_image.size
+        scale = 256 / orig_height
+        pad = [0, 0] # fix me
 
         # extract keypoints
         total_keypoints_num = 0
@@ -80,8 +91,8 @@ class OnnxModel():
 
         pose_entries, all_keypoints = group_keypoints(all_keypoints_by_type, pafs, demo=True)
         for kpt_id in range(all_keypoints.shape[0]):
-            all_keypoints[kpt_id, 0] = (all_keypoints[kpt_id, 0] * stride / upsample_ratio - pad[1]) / scale
-            all_keypoints[kpt_id, 1] = (all_keypoints[kpt_id, 1] * stride / upsample_ratio - pad[0]) / scale
+            all_keypoints[kpt_id, 0] = ((all_keypoints[kpt_id, 0] * 8) - pad[1]) / scale
+            all_keypoints[kpt_id, 1] = ((all_keypoints[kpt_id, 1] * 8) - pad[0]) / scale
         # extract poses
         current_poses = []
         for n in range(len(pose_entries)):
@@ -94,15 +105,18 @@ class OnnxModel():
                     pose_keypoints[kpt_id, 1] = int(all_keypoints[int(pose_entries[n][kpt_id]), 1])
             pose = Pose(pose_keypoints, pose_entries[n][18])
             current_poses.append(pose)
-
-        # if track:
-        #     track_poses(previous_poses, current_poses, smooth=smooth)
-        #     previous_poses = current_poses
+        
         for pose in current_poses:
-            print(pose)
-
-        annotations = []
-        return {'name': self.name, 'annotations': annotations}
+            print(pose.keypoints)
+            pose.draw(img)
+        for pose in current_poses:
+            cv2.rectangle(img, (pose.bbox[0], pose.bbox[1]),
+                          (pose.bbox[0] + pose.bbox[2], pose.bbox[1] + pose.bbox[3]), (0, 255, 0))
+            # if track:
+            #     cv2.putText(img, 'id: {}'.format(pose.id), (pose.bbox[0], pose.bbox[1] - 16),
+            #                 cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255))
+        return {'name': self.name, 'annotations':[
+                {'kind':'image', 'data':np_img_to_data_url(img)}]}
 
 if __name__ == '__main__':
     imarray = np.random.rand(1920, 1080, 3) * 255
