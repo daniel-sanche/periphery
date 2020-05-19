@@ -18,7 +18,7 @@ class OnnxModel():
         self.box_scaler = 1
 
         # train on dataset
-        num_images = 6
+        num_images = np.sum([len(f) for _, _, f in os.walk(dataset_path)])
         self.labels = [name for name in os.listdir(dataset_path)]
         vector_mat = np.zeros((num_images, 512), dtype=np.float32)
         labels_mat = np.zeros((num_images), dtype=np.uint8)
