@@ -22,20 +22,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mask-crnn
+  name: mask-rcnn
 spec:
   selector:
     matchLabels:
-      app: mask-crnn
+      app: mask-rcnn
   template:
     metadata:
       labels:
-        app: mask-crnn
+        app: mask-rcnn
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-      - name: mask-crnn
-        image: mask-crnn
+      - name: mask-rcnn
+        image: mask-rcnn
         env:
         - name: PORT
           value: "8080"
@@ -80,6 +80,33 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: friend-recognizer
+spec:
+  selector:
+    matchLabels:
+      app: friend-recognizer
+  template:
+    metadata:
+      labels:
+        app: friend-recognizer
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: friend-recognizer
+        image: friend-recognizer
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
+        - name: RECOGNITION_CONFIDENCE_THRESHOLD
+          value: "0.9"
+        - name: DETECTION_CONFIDENCE_THRESHOLD
+          value: "20"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: yolov3
 spec:
   selector:
@@ -94,31 +121,6 @@ spec:
       containers:
       - name: yolov3
         image: yolov3
-        env:
-        - name: PORT
-          value: "8080"
-        - name: CONTROLLER_ADDRESS
-          value: "frontend-internal:8080"
-        - name: PYTHONUNBUFFERED
-          value: "True"
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mirror
-spec:
-  selector:
-    matchLabels:
-      app: mirror
-  template:
-    metadata:
-      labels:
-        app: mirror
-    spec:
-      terminationGracePeriodSeconds: 5
-      containers:
-      - name: mirror
-        image: mirror
         env:
         - name: PORT
           value: "8080"

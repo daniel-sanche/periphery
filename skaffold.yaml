@@ -12,6 +12,8 @@ build:
     context: models/mirror
   - image: openpose
     context: models/openpose
+  - image: friend-recognizer
+    context: models/friend_detector
   tagPolicy:
     gitCommit: {}
 deploy:
