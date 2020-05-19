@@ -18,7 +18,7 @@ class OnnxModel():
         self.box_scaler = 1.25
 
         # train on dataset
-        num_images = 5
+        num_images = 6
         self.labels = [name for name in os.listdir(dataset_path)]
         vector_mat = np.zeros((num_images, 512), dtype=np.float32)
         labels_mat = np.zeros((num_images), dtype=np.uint8)
@@ -89,7 +89,7 @@ class OnnxModel():
         vector_list = []
         for img in image_list:
             unnormalized = self.sess.run(None, {'data':img})[0]
-            vector_list.append(preprocessing.normalize(unnormalized).flatten())
+            vector_list.append(unnormalized)
         return {'boxes': input_dict.get('boxes'),
                 'confidence': input_dict.get('confidence'),
                 'vectors': vector_list}
@@ -123,10 +123,15 @@ class OnnxModel():
         idx = np.argmin(distances)
         score = np.amin(distances)
         label = self.labels[self.y[idx]]
+        # find runner up
+        best_wrong_score = np.amin(distances, where=self.y!=self.y[idx], initial=100)
+        # print
         print(distances)
         print(idx)
-        print(score)
+        print(score, best_wrong_score)
         print(label)
+        if score - best_wrong_score > 1 or score > 18:
+            label = '???'
         return label
 
 if __name__ == '__main__':
