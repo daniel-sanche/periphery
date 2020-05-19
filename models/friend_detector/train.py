@@ -1,0 +1,36 @@
+import numpy as np
+import os
+from PIL import Image
+
+def images_to_dict(dataset_path, arcface_model):
+    max_per_class = max([len(f) for _, _, f in os.walk(dataset_path)])
+    labels = [name for name in os.listdir(dataset_path)]
+    num_labels = len(labels)
+    vector_mat = np.zeros((num_labels, max_per_class, 512), dtype=np.float32)
+    y_dict = {}
+    for label, friend_name in enumerate(labels):
+        friend_path = os.path.join(dataset_path, friend_name)
+        x_list = []
+        for idx, image_name in enumerate(os.listdir(friend_path)):
+            image_path = os.path.join(friend_path, image_name)
+            img = Image.open(image_path)
+            input_dict = arcface_model.preprocess(img)
+            vector_list = arcface_model.run(input_dict)['vectors']
+            assert len(vector_list) == 1
+            x_list.append(vector_list[0])
+        y_dict[friend_name] = x_list
+    return y_dict
+
+
+def dict_to_mat(label_dict, vector_size=512):
+    max_per_class = max([len(x) for x in label_dict.values()])
+    y = list(label_dict.keys())
+    X = np.zeros((len(y), max_per_class, vector_size), dtype=np.float32)
+    for i, label in enumerate(y):
+        vector_list = label_dict[label]
+        for j in range(max_per_class):
+            if j < len(vector_list):
+                vector = vector_list[j]
+            X[i, j, :] = vector
+            j += 1
+    return X, y

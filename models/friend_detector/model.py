@@ -7,6 +7,7 @@ import envars
 import os
 from sklearn import preprocessing
 from scipy.special import softmax
+from train import images_to_dict, dict_to_mat
 
 class OnnxModel():
     def __init__(self, model_path='updated_arcface.onnx', dataset_path='dataset'):
@@ -18,23 +19,12 @@ class OnnxModel():
         self.threshold = 20
         self.box_scaler = 1
 
-        # train on dataset
-        num_images = np.sum([len(f) for _, _, f in os.walk(dataset_path)])
-        max_per_class = max([len(f) for _, _, f in os.walk(dataset_path)])
-        self.labels = [name for name in os.listdir(dataset_path)]
-        num_labels = len(self.labels)
-        vector_mat = np.zeros((num_labels, max_per_class, 512), dtype=np.float32)
-        for label, friend_name in enumerate(self.labels):
-            friend_path = os.path.join(dataset_path, friend_name)
-            for idx, image_name in enumerate(os.listdir(friend_path)):
-                image_path = os.path.join(friend_path, image_name)
-                print(image_path)
-                img = Image.open(image_path)
-                input_dict = self.preprocess(img)
-                vector_list = self.run(input_dict)['vectors']
-                assert len(vector_list) == 1
-                vector_mat[label, idx, :] = vector_list[0]
-        self.X = vector_mat
+        # load local images
+        label_dict = images_to_dict(dataset_path, self)
+        X, y = dict_to_mat(label_dict)
+        self.X = X
+        self.labels = y
+        print('found labels: {}'.format(y))
 
         # print input/output details
         print("backend: {}".format(rt.get_device()))
@@ -63,7 +53,6 @@ class OnnxModel():
         faces_kept = []
         for i, (x, y, w, h) in enumerate(faces):
             c = confidence[i]
-            print(c)
             if c >= self.threshold:
                 h_p = int(h * self.box_scaler)
                 w_p = int(w * self.box_scaler)
