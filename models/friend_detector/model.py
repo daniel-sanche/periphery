@@ -6,6 +6,7 @@ import cv2
 import envars
 import os
 from sklearn import preprocessing
+from scipy.special import softmax
 
 class OnnxModel():
     def __init__(self, model_path='updated_arcface.onnx', dataset_path='dataset'):
@@ -19,25 +20,21 @@ class OnnxModel():
 
         # train on dataset
         num_images = np.sum([len(f) for _, _, f in os.walk(dataset_path)])
+        max_per_class = max([len(f) for _, _, f in os.walk(dataset_path)])
         self.labels = [name for name in os.listdir(dataset_path)]
-        vector_mat = np.zeros((num_images, 512), dtype=np.float32)
-        labels_mat = np.zeros((num_images), dtype=np.uint8)
-        idx = 0
+        num_labels = len(self.labels)
+        vector_mat = np.zeros((num_labels, max_per_class, 512), dtype=np.float32)
         for label, friend_name in enumerate(self.labels):
             friend_path = os.path.join(dataset_path, friend_name)
-            for image_name in os.listdir(friend_path):
+            for idx, image_name in enumerate(os.listdir(friend_path)):
                 image_path = os.path.join(friend_path, image_name)
                 print(image_path)
                 img = Image.open(image_path)
                 input_dict = self.preprocess(img)
                 vector_list = self.run(input_dict)['vectors']
                 assert len(vector_list) == 1
-                vector_mat[idx, :] = vector_list[0]
-                labels_mat[idx] = label
-                idx += 1
-        print(vector_mat)
+                vector_mat[label, idx, :] = vector_list[0]
         self.X = vector_mat
-        self.y = labels_mat
 
         # print input/output details
         print("backend: {}".format(rt.get_device()))
@@ -117,20 +114,22 @@ class OnnxModel():
         return {'name': self.name, 'annotations': annotations}
 
     def find_closest(self, vector):
-        repeated = np.repeat(vector[np.newaxis, :], self.X.shape[0], axis=0)
+        repeated = np.repeat(vector[np.newaxis, :], self.X.shape[1], axis=0)
+        repeated = np.repeat(repeated[np.newaxis, :, :], self.X.shape[0], axis=0)
         difference = repeated - self.X
-        distances = np.linalg.norm(difference, axis=1)
-        idx = np.argmin(distances)
-        score = np.amin(distances)
-        label = self.labels[self.y[idx]]
-        # find runner up
-        best_wrong_score = np.amin(distances, where=self.y!=self.y[idx], initial=100)
-        # print
-        print(distances)
-        print(idx)
-        print(score, best_wrong_score)
-        print(label)
-        if score - best_wrong_score > 1 or score > 30:
+        distances = np.linalg.norm(difference, axis=2)
+        average_distances = np.mean(distances, axis=1)
+        normalized_scores = softmax(-average_distances)
+        print(average_distances)
+        print(normalized_scores)
+        print(self.labels)
+
+        idx = np.argmax(normalized_scores)
+        score = np.amax(normalized_scores)
+        # absolute_score = np.amin(average_distances)
+        label = self.labels[idx]
+
+        if score < 0.9:
             label = '???'
         return label
 

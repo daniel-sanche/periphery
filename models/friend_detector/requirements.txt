@@ -2,3 +2,4 @@ pillow
 python-socketio[client]
 opencv-python
 sklearn
+scipy
