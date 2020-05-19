@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from PIL import Image
+import pickle
 
 def images_to_dict(dataset_path, arcface_model):
     max_per_class = max([len(f) for _, _, f in os.walk(dataset_path)])
@@ -34,3 +35,21 @@ def dict_to_mat(label_dict, vector_size=512):
             X[i, j, :] = vector
             j += 1
     return X, y
+
+def save_dict_to_disk(label_dict, save_path='./friend_data.pickle'):
+    with open(save_path, 'wb') as handle:
+        pickle.dump(label_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+def load_dict_from_disk(load_path='./friend_data.pickle'):
+    with open(load_path, 'rb') as handle:
+        label_dict = pickle.load(handle)
+    return label_dict
+
+def merge_dicts(dict_a, dict_b):
+    all_keys = set(dict_a.keys()) | set(dict_b.keys())
+    combined = {}
+    for key in all_keys:
+        arr_a = dict_a.get(key, [])
+        arr_b = dict_b.get(key, [])
+        combined[key] = arr_a + arr_b
+    return combined
