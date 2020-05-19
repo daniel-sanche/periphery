@@ -36,25 +36,44 @@ def AUTO_RUN():
 
 #############################################
 
-def CONFIDENCE_THRESHOLD():
+def RECOGNITION_CONFIDENCE_THRESHOLD():
     """
-    Ignore matches with less than this score
-    """
-    var_name = inspect.stack()[0][3]
-    return float(environ.get(var_name, 0.6))
-
-
-def OUTPUT_BOXES():
-    """
-    Include bounding boxes in output
+    Ignore label recognitions with less than this score
     """
     var_name = inspect.stack()[0][3]
-    return environ.get(var_name, 'False') == 'True'
+    return float(environ.get(var_name, 0.9))
 
-
-def OUTPUT_MASKS():
+def DETECTION_CONFIDENCE_THRESHOLD():
     """
-    Include sementic masks in output
+    Ignore potential haar faces with less than this score
+    """
+    var_name = inspect.stack()[0][3]
+    return int(environ.get(var_name, 20))
+
+def UNKNOWN_LABEL():
+    """
+    The label given to unknown faces
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, '???')
+
+def USE_IMAGE_DATASET():
+    """
+    Sets whether to load local images to the dataset
     """
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, 'True') == 'True'
+
+def USE_PICKLE_DATASET():
+    """
+    Sets whether to load a pickle file to the dataset
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'True') == 'True'
+
+def SAVE_DATASET_TO_PICKLE():
+    """
+    Sets whether to save data to a pickle file after loading
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'False') == 'True'

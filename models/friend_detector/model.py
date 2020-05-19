@@ -7,24 +7,39 @@ import envars
 import os
 from sklearn import preprocessing
 from scipy.special import softmax
-from train import images_to_dict, dict_to_mat
+import train
+import sys
 
 class OnnxModel():
-    def __init__(self, model_path='updated_arcface.onnx', dataset_path='dataset'):
+    def __init__(self, model_path='updated_arcface.onnx',
+            images_path='./dataset', pickle_path='./data.pickle'):
         self.name = 'FriendDetector'
         self.sess = rt.InferenceSession(model_path)
         self.inputs = self.sess.get_inputs()
         self.outputs = self.sess.get_outputs()
 
-        self.threshold = 20
-        self.box_scaler = 1
+        # load dataset
+        image_label_data = {}
+        pickle_label_data = {}
+        if envars.USE_IMAGE_DATASET():
+            print('loading from images in: {}'.format(images_path))
+            image_label_data = train.images_to_dict(images_path, self)
+        if envars.USE_PICKLE_DATASET() and os.path.exists(pickle_path):
+            print('loading from pickle: {}'.format(pickle_path))
+            pickle_label_data = train.load_dict_from_disk(pickle_path)
+        combined_labels = train.merge_dicts(image_label_data, pickle_label_data)
+        if envars.SAVE_DATASET_TO_PICKLE():
+            print('saving dataset to: {}'.format(pickle_path))
+            train.save_dict_to_disk(combined_labels, pickle_path)
+        X, y = train.dict_to_mat(combined_labels)
+        if not y:
+            print('data not found. aborting')
+            sys.exit(1)
 
-        # load local images
-        label_dict = images_to_dict(dataset_path, self)
-        X, y = dict_to_mat(label_dict)
         self.X = X
         self.labels = y
         print('found labels: {}'.format(y))
+        print('dataset shape: {}'.format(X.shape))
 
         # print input/output details
         print("backend: {}".format(rt.get_device()))
@@ -53,15 +68,13 @@ class OnnxModel():
         faces_kept = []
         for i, (x, y, w, h) in enumerate(faces):
             c = confidence[i]
-            if c >= self.threshold:
-                h_p = int(h * self.box_scaler)
-                w_p = int(w * self.box_scaler)
-                crop_img = img[y:y+h_p, x:x+w_p,:]
+            if c >= envars.DETECTION_CONFIDENCE_THRESHOLD():
+                crop_img = img[y:y+h, x:x+w,:]
                 crop_img = cv2.resize(crop_img, (112, 112))
                 crop_img = np.transpose(crop_img, [2, 0, 1])
                 crop_img = np.expand_dims(crop_img, axis=0)
                 cropped_list.append(crop_img)
-                faces_kept.append((int(x), int(y), w_p, h_p))
+                faces_kept.append((int(x), int(y), int(w), int(h)))
         # return in onnx tensor format
         return {'images': cropped_list, 'boxes': faces_kept}
 
@@ -113,8 +126,8 @@ class OnnxModel():
         # absolute_score = np.amin(average_distances)
         label = self.labels[idx]
 
-        if score < 0.9:
-            label = '???'
+        if score < envars.RECOGNITION_CONFIDENCE_THRESHOLD():
+            label = envars.UNKNOWN_LABEL()
         return label, float(score)
 
 if __name__ == '__main__':
