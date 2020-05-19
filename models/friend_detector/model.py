@@ -15,7 +15,7 @@ class OnnxModel():
         self.outputs = self.sess.get_outputs()
 
         self.threshold = 20
-        self.box_scaler = 1.25
+        self.box_scaler = 1
 
         # train on dataset
         num_images = 6
@@ -130,7 +130,7 @@ class OnnxModel():
         print(idx)
         print(score, best_wrong_score)
         print(label)
-        if score - best_wrong_score > 1 or score > 18:
+        if score - best_wrong_score > 1 or score > 30:
             label = '???'
         return label
 
