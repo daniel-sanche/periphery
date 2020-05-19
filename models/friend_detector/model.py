@@ -61,7 +61,6 @@ class OnnxModel():
         cropped_list = []
         img = img.astype(np.float32)
         faces_kept = []
-        confidence_kept = []
         for i, (x, y, w, h) in enumerate(faces):
             c = confidence[i]
             print(c)
@@ -74,9 +73,8 @@ class OnnxModel():
                 crop_img = np.expand_dims(crop_img, axis=0)
                 cropped_list.append(crop_img)
                 faces_kept.append((int(x), int(y), w_p, h_p))
-                confidence_kept.append(float(c))
         # return in onnx tensor format
-        return {'images': cropped_list, 'boxes': faces_kept, 'confidence':confidence_kept}
+        return {'images': cropped_list, 'boxes': faces_kept}
 
     def run(self, input_dict):
         """
@@ -88,7 +86,6 @@ class OnnxModel():
             unnormalized = self.sess.run(None, {'data':img})[0]
             vector_list.append(unnormalized)
         return {'boxes': input_dict.get('boxes'),
-                'confidence': input_dict.get('confidence'),
                 'vectors': vector_list}
 
     def postprocess(self, orig_image, output_dict):
@@ -97,19 +94,17 @@ class OnnxModel():
         """
         boxes = output_dict['boxes']
         vectors = output_dict['vectors']
-        confidences = output_dict['confidence']
         num_faces = len(boxes)
 
         annotations = []
         for i in range(num_faces):
             (x, y, w, h) = boxes[i]
             vector = np.squeeze(vectors[i])
-            confidence = confidences[i]
-            label = self.find_closest(vector)
+            label, score = self.find_closest(vector)
             # print(confidence)
             annotations.append(
                 {'kind': 'box', 'x': x, 'y': y, 'width': w, 'height': h,
-                'label': label, 'confidence': confidence})
+                'label': label, 'confidence': score})
 
         return {'name': self.name, 'annotations': annotations}
 
@@ -131,7 +126,7 @@ class OnnxModel():
 
         if score < 0.9:
             label = '???'
-        return label
+        return label, float(score)
 
 if __name__ == '__main__':
     imarray = np.random.rand(1920, 1080, 3) * 255
