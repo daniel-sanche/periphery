@@ -116,7 +116,7 @@ class OnnxModel():
         distances = np.linalg.norm(difference, axis=1)
         normalized_scores = softmax(-distances)
         print(distances)
-        print(normalized_scores)
+        print(["%.2f" % v for v in normalized_scores])
         print(self.labels)
 
         idx = np.argmax(normalized_scores)
