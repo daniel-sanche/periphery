@@ -31,7 +31,7 @@ class OnnxModel():
         if envars.SAVE_DATASET_TO_PICKLE():
             print('saving dataset to: {}'.format(pickle_path))
             train.save_dict_to_disk(combined_labels, pickle_path)
-        X, y = train.dict_to_mat(combined_labels)
+        X, y = train.dict_to_compressed_mat(combined_labels)
         if not y:
             print('data not found. aborting')
             sys.exit(1)
@@ -111,13 +111,11 @@ class OnnxModel():
         return {'name': self.name, 'annotations': annotations}
 
     def find_closest(self, vector):
-        repeated = np.repeat(vector[np.newaxis, :], self.X.shape[1], axis=0)
-        repeated = np.repeat(repeated[np.newaxis, :, :], self.X.shape[0], axis=0)
+        repeated = np.repeat(vector[np.newaxis, :], self.X.shape[0], axis=0)
         difference = repeated - self.X
-        distances = np.linalg.norm(difference, axis=2)
-        average_distances = np.mean(distances, axis=1)
-        normalized_scores = softmax(-average_distances)
-        print(average_distances)
+        distances = np.linalg.norm(difference, axis=1)
+        normalized_scores = softmax(-distances)
+        print(distances)
         print(normalized_scores)
         print(self.labels)
 

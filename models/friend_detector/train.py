@@ -23,17 +23,18 @@ def images_to_dict(dataset_path, arcface_model):
     return y_dict
 
 
-def dict_to_mat(label_dict, vector_size=512):
+def dict_to_compressed_mat(label_dict, vector_size=512):
     max_per_class = max([len(x) for x in label_dict.values()])
     y = list(label_dict.keys())
-    X = np.zeros((len(y), max_per_class, vector_size), dtype=np.float32)
+    X = np.zeros((len(y), vector_size), dtype=np.float32)
     for i, label in enumerate(y):
         vector_list = label_dict[label]
-        for j in range(max_per_class):
-            if j < len(vector_list):
-                vector = vector_list[j]
-            X[i, j, :] = vector
-            j += 1
+        num_samples = len(vector_list)
+        face_mat = np.zeros((num_samples, vector_size), dtype=np.float32)
+        for j, vector in enumerate(vector_list):
+            face_mat[j, :] = vector
+        average_vector = np.mean(face_mat, axis=0)
+        X[i, :] = average_vector
     return X, y
 
 def save_dict_to_disk(label_dict, save_path='./friend_data.pickle'):
