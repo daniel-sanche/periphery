@@ -17,7 +17,7 @@
 ```
 name: yolo
 time: 0.5       # optional
-ml_time: 0.3    # optional
+inference_time: 0.3    # optional
 annotations:
   - kind: box
     x: 0

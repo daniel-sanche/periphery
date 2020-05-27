@@ -24,7 +24,9 @@ def process_frame(data_url):
     # process image
     img = data_url_to_pil(data_url)
     input_dict = model.preprocess(img)
+    inference_start = time.time()
     output_dict = model.run(input_dict)
+    inference_end = time.time()
     payload = model.postprocess(img, output_dict)
     # build payload
     end_time = time.time()
@@ -32,6 +34,9 @@ def process_frame(data_url):
     print("[INFO] {} processing time: {:.6f} seconds"
           .format(model.name, end_time - start_time))
     payload['time'] = end_time - start_time
+    inference_total = inference_end - inference_start
+    if inference_total > 0.01:
+        payload['inference_time'] = inference_total
     sio.emit('frame_complete', payload)
     # request a new frame
     if envars.AUTO_RUN():

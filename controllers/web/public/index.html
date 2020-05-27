@@ -23,8 +23,8 @@
         <div class="card bg-light" style="width: 18rem;" v-for="model in connected_models">
           <div class="card-body">
               <h5 class="card-title" v-bind:style="{color: color_for_model(model)}">{{ model }}</h5>
-              <p class="card-text" v-bind:id="'ml-time-' + model"></p>
               <p class="card-text" v-bind:id="'e2e-time-' + model"></p>
+              <p class="card-text" v-bind:id="'ml-time-' + model"></p>
             <div class="form-group">
                 <!-- enable/disable switch-->
               <div class="custom-control custom-switch">

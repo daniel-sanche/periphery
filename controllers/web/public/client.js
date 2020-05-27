@@ -44,7 +44,7 @@ var app = new Vue({
         vm.connected_models.push(model_name);
         vm.enabled_dict[model_name] = true;
       }
-      vm.render_process_time(result_dict.time, result_dict.ml_time, model_name);
+      vm.render_process_time(result_dict.time, result_dict.inference_time, model_name);
       vm.render_annotations(result_dict.annotations, model_name);
     });
 
@@ -114,14 +114,18 @@ var app = new Vue({
     },
 
     render_process_time(e2e_time, ml_time, model_name){
+      const ml_field = document.getElementById('ml-time-' + model_name);
+      const e2e_field = document.getElementById('e2e-time-' + model_name);
+      ml_str = "";
+      e2e_str = "";
       if (ml_time != null){
-        const ml_field = document.getElementById('ml-time-' + model_name);
-        ml_field.innerHTML = "🕑 ML: " + ml_time.toFixed(3) + "s (" + (1/(ml_time+0.00001)).toFixed(1) + "FPS)";
+        ml_str = "🕑 Inference:&emsp;" + ml_time.toFixed(3) + "s (" + (1/(ml_time+0.00001)).toFixed(1) + "FPS)";
       }
       if(e2e_time != null){
-        const e2e_field = document.getElementById('e2e-time-' + model_name);
-        e2e_field.innerHTML = "🕑 E2E: " + e2e_time.toFixed(3) + "s (" + (1/(e2e_time+0.00001)).toFixed(1) + "FPS)";
+        e2e_str = "🕑 Total:&emsp;&emsp;&emsp;" + e2e_time.toFixed(3) + "s (" + (1/(e2e_time+0.00001)).toFixed(1) + "FPS)";
       }
+      ml_field.innerHTML = ml_str;
+      e2e_field.innerHTML = e2e_str;
     },
 
     render_annotations(annotations_data,  model_name){
