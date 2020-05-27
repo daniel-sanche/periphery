@@ -83,6 +83,33 @@ spec:
         - name: OUTPUT_POSES
           value: "True"
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: friend-recognizer
+spec:
+  selector:
+    matchLabels:
+      app: friend-recognizer
+  template:
+    metadata:
+      labels:
+        app: friend-recognizer
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: friend-recognizer
+        image: friend-recognizer
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
+        - name: RECOGNITION_CONFIDENCE_THRESHOLD
+          value: "0.9"
+        - name: DETECTION_CONFIDENCE_THRESHOLD
+          value: "20"
+---
 apiVersion: v1
 kind: Service
 metadata:

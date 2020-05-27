@@ -34,6 +34,8 @@ profiles:
       context: models/openpose
       docker:
         dockerfile: Dockerfile.gpu
+    - image: friend-recognizer
+      context: models/friend_detector
   deploy:
     kubectl:
       manifests:
