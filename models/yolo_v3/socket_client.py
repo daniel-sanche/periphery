@@ -37,7 +37,7 @@ def process_frame(data_url):
           .format(_model_name, end_time - start_time))
     payload = {'name': _model_name,
                'annotations': boxes,
-               'clock_time': end_time - start_time}
+               'time': end_time - start_time}
     sio.emit('frame_complete', payload)
     # request a new frame
     if _autorun:

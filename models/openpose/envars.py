@@ -33,6 +33,23 @@ def AUTO_RUN():
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, 'True') == 'True'
 
+
+def INCLUDE_TOTAL_TIME():
+    """
+    Sets whether responses should include total processing time
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'True') == 'True'
+
+
+def INCLUDE_INFERENCE_TIME():
+    """
+    Sets whether responses should include inference processing time
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'False') == 'True'
+
+
 #############################################
 
 def USE_GPU():
@@ -41,6 +58,7 @@ def USE_GPU():
     """
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, 'False') != 'False'
+
 
 def OUTPUT_BOXES():
     """

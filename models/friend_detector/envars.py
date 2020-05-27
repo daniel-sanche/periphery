@@ -34,6 +34,22 @@ def AUTO_RUN():
     return environ.get(var_name, 'True') == 'True'
 
 
+def INCLUDE_TOTAL_TIME():
+    """
+    Sets whether responses should include total processing time
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'True') == 'True'
+
+
+def INCLUDE_INFERENCE_TIME():
+    """
+    Sets whether responses should include inference processing time
+    """
+    var_name = inspect.stack()[0][3]
+    return environ.get(var_name, 'False') == 'True'
+
+
 #############################################
 
 def RECOGNITION_CONFIDENCE_THRESHOLD():
@@ -43,12 +59,14 @@ def RECOGNITION_CONFIDENCE_THRESHOLD():
     var_name = inspect.stack()[0][3]
     return float(environ.get(var_name, 0.9))
 
+
 def DETECTION_CONFIDENCE_THRESHOLD():
     """
     Ignore potential haar faces with less than this score
     """
     var_name = inspect.stack()[0][3]
     return int(environ.get(var_name, 20))
+
 
 def UNKNOWN_LABEL():
     """
@@ -57,6 +75,7 @@ def UNKNOWN_LABEL():
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, '???')
 
+
 def USE_IMAGE_DATASET():
     """
     Sets whether to load local images to the dataset
@@ -64,12 +83,14 @@ def USE_IMAGE_DATASET():
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, 'False') == 'True'
 
+
 def USE_PICKLE_DATASET():
     """
     Sets whether to load a pickle file to the dataset
     """
     var_name = inspect.stack()[0][3]
     return environ.get(var_name, 'True') == 'True'
+
 
 def SAVE_DATASET_TO_PICKLE():
     """

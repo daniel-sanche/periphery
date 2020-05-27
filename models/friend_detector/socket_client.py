@@ -33,9 +33,10 @@ def process_frame(data_url):
     _last_activity_time = end_time
     print("[INFO] {} processing time: {:.6f} seconds"
           .format(model.name, end_time - start_time))
-    payload['time'] = end_time - start_time
+    if envars.INCLUDE_TOTAL_TIME():
+        payload['time'] = end_time - start_time
     inference_total = inference_end - inference_start
-    if inference_total > 0.01:
+    if envars.INCLUDE_INFERENCE_TIME() and inference_total > 0.01:
         payload['inference_time'] = inference_total
     sio.emit('frame_complete', payload)
     # request a new frame
