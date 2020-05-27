@@ -8,8 +8,6 @@ build:
     context: models/mask-rcnn
   - image: yolov3
     context: models/yolo_v3
-  - image: mirror
-    context: models/mirror
   - image: openpose
     context: models/openpose
   - image: friend-recognizer
