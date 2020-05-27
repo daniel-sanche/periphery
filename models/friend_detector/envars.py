@@ -62,7 +62,7 @@ def USE_IMAGE_DATASET():
     Sets whether to load local images to the dataset
     """
     var_name = inspect.stack()[0][3]
-    return environ.get(var_name, 'True') == 'True'
+    return environ.get(var_name, 'False') == 'True'
 
 def USE_PICKLE_DATASET():
     """

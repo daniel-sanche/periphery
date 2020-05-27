@@ -24,7 +24,6 @@ def images_to_dict(dataset_path, arcface_model):
 
 
 def dict_to_compressed_mat(label_dict, vector_size=512):
-    max_per_class = max([len(x) for x in label_dict.values()])
     y = list(label_dict.keys())
     X = np.zeros((len(y), vector_size), dtype=np.float32)
     for i, label in enumerate(y):
