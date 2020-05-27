@@ -100,6 +100,10 @@ spec:
       labels:
         app: friend-recognizer
     spec:
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
       terminationGracePeriodSeconds: 5
       containers:
       - name: friend-recognizer
