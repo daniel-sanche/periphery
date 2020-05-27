@@ -31,6 +31,7 @@ def process_frame(data_url):
     _last_activity_time = end_time
     print("[INFO] {} processing time: {:.6f} seconds"
           .format(model.name, end_time - start_time))
+    payload['time'] = end_time - start_time
     sio.emit('frame_complete', payload)
     # request a new frame
     if envars.AUTO_RUN():

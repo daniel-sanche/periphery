@@ -44,6 +44,7 @@ var app = new Vue({
         vm.connected_models.push(model_name);
         vm.enabled_dict[model_name] = true;
       }
+      vm.render_process_time(result_dict.time, result_dict.ml_time, model_name);
       vm.render_annotations(result_dict.annotations, model_name);
     });
 
@@ -110,6 +111,17 @@ var app = new Vue({
         a=f.a,t=t.a,f=a>=0||t>=0,a=f?a<0?t:t<0?a:a*P+t*p:0;
         if(h)return"rgb"+(f?"a(":"(")+r+","+g+","+b+(f?","+m(a*1000)/1000:"")+")";
         else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
+    },
+
+    render_process_time(e2e_time, ml_time, model_name){
+      if (ml_time != null){
+        const ml_field = document.getElementById('ml-time-' + model_name);
+        ml_field.innerHTML = "🕑 ML: " + ml_time.toFixed(3) + "s (" + (1/(ml_time+0.00001)).toFixed(1) + "FPS)";
+      }
+      if(e2e_time != null){
+        const e2e_field = document.getElementById('e2e-time-' + model_name);
+        e2e_field.innerHTML = "🕑 E2E: " + e2e_time.toFixed(3) + "s (" + (1/(e2e_time+0.00001)).toFixed(1) + "FPS)";
+      }
     },
 
     render_annotations(annotations_data,  model_name){

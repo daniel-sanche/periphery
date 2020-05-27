@@ -16,6 +16,8 @@
 ### ResultYAML
 ```
 name: yolo
+time: 0.5       # optional
+ml_time: 0.3    # optional
 annotations:
   - kind: box
     x: 0
@@ -50,7 +52,6 @@ annotations:
         x: 10
         y: 20
         confidence: 0.7
-process_time: 10
 ```
 
 ### ModelYAML
