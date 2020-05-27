@@ -63,7 +63,8 @@ var app = new Vue({
 
   mounted() {
     var video = document.getElementById("video");
-    const constraints = { video: true };
+    const constraints = { video: {width: {exact: this.width}, height: {exact: this.height } } };
+
     navigator.getUserMedia= (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msgGetUserMedia);
     if(navigator.getUserMedia) {
       navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
