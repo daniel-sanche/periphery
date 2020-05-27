@@ -23,14 +23,16 @@
         <div class="card bg-light" style="width: 18rem;" v-for="model in connected_models">
           <div class="card-body">
               <h5 class="card-title" v-bind:style="{color: color_for_model(model)}">{{ model }}</h5>
-              <p class="card-text" v-bind:id="'e2e-time-' + model"></p>
-              <p class="card-text" v-bind:id="'ml-time-' + model"></p>
             <div class="form-group">
-                <!-- enable/disable switch-->
+              <!-- enable/disable switch-->
               <div class="custom-control custom-switch">
                 <input type="checkbox"  class="custom-control-input" v-bind:id="model + '-enabled'" v-model="enabled_dict[model]">
                 <label class="custom-control-label" v-bind:for="model + '-enabled'">Enabled</label>
               </div>
+              <!-- display FPS -->
+              <br>
+              <p class="card-text" v-bind:id="'e2e-time-' + model"></p>
+              <p class="card-text" v-bind:id="'ml-time-' + model"></p>
             </div>
           </div>
         </div>
