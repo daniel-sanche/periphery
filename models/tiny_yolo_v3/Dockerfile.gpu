@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/azureml/onnxruntime:v1.2.0
+
+RUN wget https://github.com/onnx/models/raw/master/vision/object_detection_segmentation/tiny-yolov3/model/tiny-yolov3-11.onnx
+RUN wget https://github.com/qqwweee/keras-yolo3/raw/master/model_data/coco_classes.txt
+
+COPY requirements.txt /code
+RUN pip install -r requirements.txt
+
+COPY *.py /code/
+ENTRYPOINT python socket_client.py

@@ -71,8 +71,6 @@ class OnnxModel():
 
         num_boxes = indices.shape[1]
 
-        print(scores.shape)
-
         annotations = []
         for i in range(num_boxes):
             class_idx = indices[0, i, 1]
