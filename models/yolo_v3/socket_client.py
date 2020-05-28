@@ -1,16 +1,10 @@
 import socketio
-from base64 import b64decode
-from PIL import Image
-import io
-import numpy as np
 import time
-from model import YOLO
-import os
+from model import OnnxModel
+from image_functions import data_url_to_pil
+import envars
 
-_model_name = 'yolo_v3'
-_inactivity_threshold = 5
 _last_activity_time = time.time()
-_autorun = True
 
 sio = socketio.Client()
 
@@ -18,7 +12,7 @@ sio = socketio.Client()
 @sio.event
 def connect():
     print('connection established')
-    sio.emit('register', _model_name)
+    sio.emit('register', model.name)
     sio.emit('frame_request')
 
 
@@ -28,19 +22,24 @@ def process_frame(data_url):
     start_time = time.time()
     _last_activity_time = start_time
     # process image
-    img = _decode_img(data_url)
-    boxes = yolo.get_prediction(img)
+    img = data_url_to_pil(data_url)
+    input_dict = model.preprocess(img)
+    inference_start = time.time()
+    output_dict = model.run(input_dict)
+    inference_end = time.time()
+    payload = model.postprocess(img, output_dict)
     # build payload
     end_time = time.time()
     _last_activity_time = end_time
     print("[INFO] {} processing time: {:.6f} seconds"
-          .format(_model_name, end_time - start_time))
-    payload = {'name': _model_name,
-               'annotations': boxes,
-               'time': end_time - start_time}
+          .format(model.name, end_time - start_time))
+    if envars.INCLUDE_TOTAL_TIME():
+        payload['time'] = end_time - start_time
+    if envars.INCLUDE_INFERENCE_TIME():
+        payload['inference_time'] = inference_end - inference_start
     sio.emit('frame_complete', payload)
     # request a new frame
-    if _autorun:
+    if envars.AUTO_RUN():
         sio.emit('frame_request')
 
 
@@ -49,26 +48,17 @@ def disconnect():
     print('disconnected from server')
 
 
-def _decode_img(data_url):
-    image_data = b64decode(data_url.split(',')[1])
-    img = Image.open(io.BytesIO(image_data))
-    npimg = np.array(img)
-    image = npimg.copy()
-    return image
-
-
 def poll_timer():
     global _last_activity_time
     while True:
-        time.sleep(1)
-        if _autorun and \
-                time.time() - _last_activity_time > _inactivity_threshold:
+        time.sleep(envars.POLL_TIME())
+        elapsed_time = time.time() - _last_activity_time
+        if envars.AUTO_RUN() and elapsed_time > envars.INACTIVITY_THRESHOLD():
             print('No activity. Querying controller again')
             sio.emit('frame_request')
 
 
 if __name__ == '__main__':
-    yolo = YOLO()
-    controller_addr = os.environ.get('CONTROLLER_ADDRESS', 'localhost:8080')
-    sio.connect('http://{}'.format(controller_addr))
+    model = OnnxModel()
+    sio.connect('http://{}'.format(envars.CONTROLLER_ADDRESS()))
     poll_timer()

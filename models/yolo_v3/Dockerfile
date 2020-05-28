@@ -1,13 +1,10 @@
-FROM python:3.7-slim
+FROM mcr.microsoft.com/azureml/onnxruntime:v1.2.0
 
-WORKDIR /app
+RUN wget https://github.com/onnx/models/raw/master/vision/object_detection_segmentation/yolov3/model/yolov3-10.onnx
+RUN wget https://github.com/qqwweee/keras-yolo3/raw/master/model_data/coco_classes.txt
 
-COPY requirements.txt ./
-
+COPY requirements.txt /code
 RUN pip install -r requirements.txt
 
-RUN apt-get update
-RUN apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender-dev
-
-COPY . /app
+COPY *.py /code/
 ENTRYPOINT python socket_client.py
