@@ -1,7 +1,6 @@
 import onnxruntime as rt
 import numpy as np
 from PIL import Image
-import math
 import envars
 
 
@@ -34,8 +33,8 @@ class OnnxModel():
         nw = int(iw*scale)
         nh = int(ih*scale)
 
-        image = image.resize((nw,nh), Image.BICUBIC)
-        new_image = Image.new('RGB', size, (128,128,128))
+        image = image.resize((nw, nh), Image.BICUBIC)
+        new_image = Image.new('RGB', size, (128, 128, 128))
         new_image.paste(image, ((w-nw)//2, (h-nh)//2))
         return new_image
 
@@ -46,7 +45,8 @@ class OnnxModel():
         orig_size = np.array([img.size[1],
                               img.size[0]], dtype=np.float32).reshape(1, 2)
         model_image_size = (416, 416)
-        boxed_image = self.letterbox_image(img, tuple(reversed(model_image_size)))
+        boxed_image = self.letterbox_image(img,
+                                           tuple(reversed(model_image_size)))
         image_data = np.array(boxed_image, dtype='float32')
         image_data /= 255.
         image_data = np.transpose(image_data, [2, 0, 1])
@@ -80,14 +80,16 @@ class OnnxModel():
             box_idx = indices[i, 2]
             box = boxes[box_idx, :]
             label = self.classes[class_idx]
-            x = int(box[1])
-            y = int(box[0])
-            height = int(box[2]) - y
-            width = int(box[3]) - x
-            annotation = {'kind': 'box', 'x': x, 'y': y,
-                          'width': width, 'height': height,
-                          'label': label, 'confidence': 1}
-            annotations.append(annotation)
+            score = scores[class_idx, box_idx]
+            if score > envars.CONFIDENCE_THRESHOLD():
+                x = int(box[1])
+                y = int(box[0])
+                height = int(box[2]) - y
+                width = int(box[3]) - x
+                annotation = {'kind': 'box', 'x': x, 'y': y,
+                              'width': width, 'height': height,
+                              'label': label, 'confidence': 1}
+                annotations.append(annotation)
         return {'name': self.name, 'annotations': annotations}
 
 
