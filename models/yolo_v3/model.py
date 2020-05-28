@@ -70,9 +70,6 @@ class OnnxModel():
         indices = output_dict[2]
 
         num_boxes = indices.shape[0]
-        print(boxes.shape)
-        print(indices.shape)
-        print(num_boxes)
 
         annotations = []
         for i in range(num_boxes):
