@@ -77,14 +77,10 @@ class OnnxModel():
             box_idx = indices[0, i, 2]
             box = boxes[box_idx, :]
             label = self.classes[class_idx]
-            print(label)
-            print(box)
-            x = int(box[0])
-            y = int(box[1])
-            width = int(box[2])
-            height = int(box[3])
-            # width = int(box[2]) - x
-            # height = int(box[3]) - y
+            x = int(box[1])
+            y = int(box[0])
+            height = int(box[2]) - y
+            width = int(box[3]) - x
             annotation = {'kind': 'box', 'x': x, 'y': y,
                           'width': width, 'height': height,
                           'label': label, 'confidence': 1}
