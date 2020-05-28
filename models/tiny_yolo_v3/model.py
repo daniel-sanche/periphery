@@ -81,8 +81,8 @@ class OnnxModel():
             print(box)
             x = int(box[0])
             y = int(box[1])
-            height = int(box[3])
             width = int(box[2])
+            height = int(box[3])
             # width = int(box[2]) - x
             # height = int(box[3]) - y
             annotation = {'kind': 'box', 'x': x, 'y': y,
