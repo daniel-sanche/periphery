@@ -11,6 +11,10 @@ spec:
       labels:
         app: frontend
     spec:
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
       terminationGracePeriodSeconds: 5
       containers:
       - name: front
@@ -90,24 +94,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: friend-recognizer
+  name: friend-recognizer-gpu
 spec:
   selector:
     matchLabels:
-      app: friend-recognizer
+      app: friend-recognizer-gpu
   template:
     metadata:
       labels:
-        app: friend-recognizer
+        app: friend-recognizer-gpu
     spec:
-      tolerations:
-      - key: "nvidia.com/gpu"
-        operator: "Exists"
-        effect: "NoSchedule"
       terminationGracePeriodSeconds: 5
       containers:
       - name: friend-recognizer
-        image: friend-recognizer
+        image: friend-recognizer-gpu
+        resources:
+          limits:
+           nvidia.com/gpu: 1
         env:
         - name: PORT
           value: "8080"
@@ -117,6 +120,63 @@ spec:
           value: "0.9"
         - name: DETECTION_CONFIDENCE_THRESHOLD
           value: "20"
+        - name: PYTHONUNBUFFERED
+          value: "True"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yolov3-gpu
+spec:
+  selector:
+    matchLabels:
+      app: yolov3-gpu
+  template:
+    metadata:
+      labels:
+        app: yolov3-gpu
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: yolov3-gpu
+        image: yolov3-gpu
+        resources:
+          limits:
+           nvidia.com/gpu: 1
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
+        - name: PYTHONUNBUFFERED
+          value: "True"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiny-yolov3
+spec:
+  selector:
+    matchLabels:
+      app: tiny-yolov3
+  template:
+    metadata:
+      labels:
+        app: tiny-yolov3
+    spec:
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: tiny-yolov3
+        image: tiny-yolov3
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
         - name: PYTHONUNBUFFERED
           value: "True"
 ---

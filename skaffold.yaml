@@ -12,6 +12,10 @@ build:
     context: models/openpose
   - image: friend-recognizer
     context: models/friend_detector
+  - image: yolov3
+    context: models/yolo_v3
+  - image: tiny-yolov3
+    context: models/tiny_yolo_v3
   tagPolicy:
     gitCommit: {}
 deploy:
@@ -32,8 +36,16 @@ profiles:
       context: models/openpose
       docker:
         dockerfile: Dockerfile.gpu
-    - image: friend-recognizer
+    - image: friend-recognizer-gpu
       context: models/friend_detector
+      docker:
+        dockerfile: Dockerfile.gpu
+    - image: yolov3-gpu
+      context: models/yolo_v3
+      docker:
+        dockerfile: Dockerfile.gpu
+    - image: tiny-yolov3
+      context: models/tiny_yolo_v3
   deploy:
     kubectl:
       manifests:

@@ -1,7 +1,7 @@
 .-PHONY: cluster deploy check-env port-forward
 
 ZONE=us-west1-b
-CLUSTER=ml-project
+CLUSTER=periphery
 IMAGE_REPO=gcr.io/${PROJECT_ID}/${CLUSTER}
 
 cluster: check-env
@@ -9,7 +9,7 @@ cluster: check-env
 	gcloud container node-pools create gpu-pool \
 	  --cluster ${CLUSTER} \
 	  --zone ${ZONE} \
-	  --num-nodes 2 \
+	  --num-nodes 4 \
 	  --accelerator type=nvidia-tesla-k80,count=1
 	skaffold run -p gpu --default-repo=${IMAGE_REPO} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
 

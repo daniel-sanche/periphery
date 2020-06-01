@@ -135,6 +135,31 @@ spec:
         - name: PYTHONUNBUFFERED
           value: "True"
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tiny-yolov3
+spec:
+  selector:
+    matchLabels:
+      app: tiny-yolov3
+  template:
+    metadata:
+      labels:
+        app: tiny-yolov3
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: tiny-yolov3
+        image: tiny-yolov3
+        env:
+        - name: PORT
+          value: "8080"
+        - name: CONTROLLER_ADDRESS
+          value: "frontend-internal:8080"
+        - name: PYTHONUNBUFFERED
+          value: "True"
+---
 apiVersion: v1
 kind: Service
 metadata:
