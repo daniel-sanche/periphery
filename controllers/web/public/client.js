@@ -75,8 +75,8 @@ var app = new Vue({
 
   methods: {
     color_for_model(model_name){
-      // blue red orange green
-      const colors = ['#0328fc', '#fc0317',  '#fca903', '#5afc03'];
+      // blue, red, orange, green, purple, pink, yellow, teal, brown
+      const colors = ['#0328fc', '#fc0317',  '#fca903', '#5afc03', '#b134eb', '#ff00ee', '#eeff00', '#00ffff', '#7d6031'];
       var idx = this.connected_models.indexOf(model_name);
       return colors[idx % colors.length];
     },
