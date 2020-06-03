@@ -4,7 +4,7 @@ metadata:
   name: ssl-certificate
 spec:
   domains:
-    - sanche.services  # repace me with DNS name mapped to sanche-services
+    #- DNS name here
 ---
 apiVersion: v1
 kind: Service
@@ -24,7 +24,7 @@ kind: Ingress
 metadata:
   name: frontend-ingress
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: sanche-services # create me with `gcloud compute addresses create bank-address --global`
+    kubernetes.io/ingress.global-static-ip-name: # create me with `gcloud compute addresses create bank-address --global`
     networking.gke.io/managed-certificates: ssl-certificate
 spec:
   backend:
