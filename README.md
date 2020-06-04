@@ -1,6 +1,5 @@
-# Periphery
+# Periphery: Computer Vision Containers for Edge Devices
 
-Computer vision containers for edge devices. Designed for hobby projects
 
 [![Project Video](https://img.youtube.com/vi/ZaxkfWmv-fo/0.jpg)](https://www.youtube.com/watch?v=ZaxkfWmv-fo)
 
