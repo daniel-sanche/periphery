@@ -1,1 +1,3 @@
-Based on https://download.01.org/opencv/openvino_training_extensions/models/human_pose_estimation/checkpoint_iter_370000.pth
+# Open Pose
+
+- Model taken from [Opwn Model Zoo][https://github.com/opencv/open_model_zoo/blob/master/models/intel/index.md#human-pose-estimation-models]

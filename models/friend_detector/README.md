@@ -1,4 +1,6 @@
-- Model taken from https://github.com/onnx/models/tree/master/vision/body_analysis/arcface
+# Friend Detector
+
+- Model taken from [ONNX model zoo](https://github.com/onnx/models/tree/master/vision/body_analysis/arcface)
 - There are two ways of loading data:
   - add images to /dataset/{name_label}/{image_file}
   - use `SAVE_DATASET_TO_PICKLE` to generate a compressed representation of face data, to avoid keeping PII around in the container
