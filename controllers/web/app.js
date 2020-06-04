@@ -27,8 +27,8 @@ io.on('connection',function(socket){
     connected_clients[socket.id] = kind;
   });
 
-  socket.on('frame_complete',function(yolo_dict){
-    socket.to('client').emit('render_update', yolo_dict);
+  socket.on('frame_complete',function(output_dict){
+    socket.to('client').emit('render_update', output_dict);
   });
 
   socket.on('frame_request',function(){
