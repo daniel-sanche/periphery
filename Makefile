@@ -13,14 +13,18 @@ cluster: check-env
 	  --accelerator type=nvidia-tesla-k80,count=1
 	skaffold run -p gpu --default-repo=${IMAGE_REPO} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
 
-deploy: check-env
+deploy-gke: check-env
 	echo ${CLUSTER}
 	gcloud container clusters get-credentials --project ${PROJECT_ID} ${CLUSTER} --zone ${ZONE}
 	kubectl delete deployments --all
 	skaffold run -p gpu --default-repo=${IMAGE_REPO} -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
 
+deploy:
+	kubectl delete deployments --all
+	skaffold run -l skaffold.dev/run-id=${CLUSTER}-${PROJECT_ID}-${ZONE}
+
 port-forward:
-	kubectl port-forward deployment/frontend 8081:8080
+	kubectl port-forward deployment/frontend 8080:8080
 
 check-env:
 ifndef PROJECT_ID
