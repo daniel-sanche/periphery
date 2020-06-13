@@ -1,7 +1,7 @@
 # Periphery: Computer Vision Containers for Edge Devices
 
 
-[![Project Video](https://img.youtube.com/vi/ZaxkfWmv-fo/0.jpg)](https://www.youtube.com/watch?v=ZaxkfWmv-fo)
+[![Project Video](https://img.youtube.com/vi/ono5TTrO0pc/0.jpg)](https://youtu.be/ono5TTrO0pc)
 
 
 ---
